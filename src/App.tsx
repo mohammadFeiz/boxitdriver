@@ -10,11 +10,14 @@ import { AIOInputDefaults } from 'aio-input';
 import checkIcon from './components/checkIcon';
 import useBottomMenu from './components/useBottomMenu';
 import './App.css'
+import usePopup from 'aio-popup';
+import { useSidemenu } from './components/sidemenu';
 
 const App: FC = () => {
   AIOInputDefaults.set({
     checkIcon: checkIcon
   })
+  const popup = usePopup()
   const user: I_user = {
     username: 'ali_ansari',
     name: 'علی انصاری',
@@ -22,14 +25,17 @@ const App: FC = () => {
     isActive: true
   }
   const bottomMenuHook = useBottomMenu()
+  const sidemenuHook = useSidemenu({popup})
   const searchAction = useSearchAction()
   return (
-    <AppProvider value={{ user, searchAction, bottomMenuHook }}>
+    <AppProvider value={{ user, searchAction, bottomMenuHook,sidemenuHook }}>
       <div className="app">
         <Header />
         <Body />
         {bottomMenuHook.render()}
+        {}
       </div>
+      
     </AppProvider>
   )
 }
@@ -53,4 +59,3 @@ const useSearchAction = (): I_searchActionHook => {
   const click = () => ref.current()
   return { set, click }
 }
-

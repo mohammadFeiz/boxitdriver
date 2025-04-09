@@ -29,7 +29,8 @@ export type I_consignment = {
     address:string,
     receiver:string,
     description:string,
-    id:number
+    id:number,
+    isCod:boolean //agar pas keraye bood bad entekhabe jami kart ha agar hatta yek pas keraye bood bayad aval safheye pardakhte figma baz beshe bad oon safhe badi
 }
 export type I_consignmentPriority = 'pin' | 'driver'
 export const consignmentPriorityDic:{[key in I_consignmentPriority]:string} = {
@@ -63,3 +64,9 @@ export type I_bottomMenuHook = {
     isActive:(v:string)=>boolean,
     render:()=>ReactNode
 }
+export type I_sidemenuHook = {
+    close:()=>void,
+    open:()=>void
+}
+//dokme ye masir yabi rooye kart ha agar dar halate taki zade shod bayad neshan baz kone va mogheiat ro neshon bede . ama agar chand kart tik khorde bood bayad yek safhe baz beshe ke hame ye in makan har ro be soorate kart neshoon bede va bayad api az parsi map call beshe ke bege be har koodoom az in noghat key mirese va agar rooye kart click kard bayad neshan baz beshe 
+//agar pardakht na movafagh bood nabayad bere safhe ye bad bar garde rooye oon safhe ke dota dokme ye pardakht va adame tahvil dare . mittone adame tahvil bezane valie bekhad bere safhe ye bad bayad hatman pardakht movafaghiat amiza bahse 

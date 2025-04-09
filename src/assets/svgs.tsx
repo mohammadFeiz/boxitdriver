@@ -257,3 +257,33 @@ export const arrowLeft = () => {
 
     )
 }
+
+
+
+export const sideReport = () => {
+    return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20.4972 5C20.2221 5 19.997 5.22509 20 5.50021C20 5.77532 20.2251 6.00042 20.5002 6.00042C20.7754 6.00042 21.0004 5.77532 21.0004 5.50021C21.0004 5.22509 20.7754 5 20.4972 5" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M17.4972 9C17.2221 9 16.997 9.22509 17 9.50021C17 9.77532 17.2251 10.0004 17.5002 10.0004C17.7754 10.0004 18.0004 9.77532 18.0004 9.50021C18.0004 9.22509 17.7754 9 17.4972 9" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M20.4972 13C20.2221 13 19.997 13.2251 20 13.5002C20 13.7753 20.2251 14.0004 20.5002 14.0004C20.7754 14.0004 21.0004 13.7753 21.0004 13.5002C21.0004 13.2251 20.7754 13 20.4972 13" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M20.4972 17C20.2221 17 19.997 17.2251 20 17.5002C20 17.7753 20.2251 18.0004 20.5002 18.0004C20.7754 18.0004 21.0004 17.7753 21.0004 17.5002C21.0004 17.2251 20.7754 17 20.4972 17" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2 9.5H14" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5 5.5H17" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5 13.5H17" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5 17.5H17" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+
+    )
+}
+
+export const logout = () => {
+    return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fillRule="evenodd" clipRule="evenodd" d="M11 19.392V7.503C11 6.813 10.645 6.172 10.06 5.807L6.06 3.307C4.728 2.475 3 3.432 3 5.003V16.891C3 17.581 3.355 18.222 3.94 18.587L7.94 21.087C9.272 21.92 11 20.962 11 19.392Z" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M15 11H21" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M19 13L21 11L19 9" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M11 19H15C16.105 19 17 18.105 17 17V16" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M17 6V5C17 3.895 16.105 3 15 3H5" stroke="#CCCCCC" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    )
+}

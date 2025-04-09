@@ -2,11 +2,11 @@ import { FC } from "react";
 import * as svgs from './../assets/svgs';
 import { useAppContext } from "../context";
 export const Header: FC = () => {
-    const { user,searchAction } = useAppContext();
+    const { user,searchAction,sidemenuHook } = useAppContext();
     return (
         <header className="app-header">
             <div className="app-header-row">
-                <div className="flex-row- align-vh-">
+                <div className="flex-row- align-vh-" onClick={()=>sidemenuHook.open()}>
                     <svgs.header_profile />
                 </div>
                 <div className="flex-col- flex-1- h-100- align-v-">
