@@ -1,10 +1,15 @@
 import { createContext, FC, ReactNode, useContext } from "react";
-import { I_consignment } from "../../types";
+import { I_consignment, I_consignmentHook, I_priorityType } from "../../types";
 import { I_usePopup } from "aio-popup";
+import { I_homeModalHook } from "./useHomeModal";
 type I_HomeContext = {
     popup:I_usePopup,
-    consignments:I_consignment[],
-    openDeliveryModal:(consignment:I_consignment)=>void
+    arriveToDestinationButton:(consignments:I_consignment[],multiple:boolean)=>void,
+    consignmentHook:I_consignmentHook,
+    navigationButtonClick:(consignments:I_consignment[],multiple:boolean)=>void,
+    priorityButtonClick:(type:I_priorityType)=>void,
+    goToNavigate:(consignment:I_consignment)=>void,
+    homeModalHook:I_homeModalHook
 }
 const HomeContext = createContext<I_HomeContext>({} as any)
 export const HomeProvider:FC<{value:I_HomeContext,children:ReactNode}> = ({value,children})=>{

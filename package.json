@@ -12,6 +12,7 @@
   "dependencies": {
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
+    "aio-apis": "^8.0.2",
     "aio-component-utils": "^3.0.2",
     "aio-date": "^5.0.1",
     "aio-input": "^14.5.7",

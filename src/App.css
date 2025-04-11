@@ -5,8 +5,10 @@
   --color4: #F1E6FD;
   --color5: #E6F3FD;
   --color6: #4EA2FF;
-  --color7:#057E38;
-  --color8:#F1F8FF;
+  --color7: #057E38;
+  --color8: #F1F8FF;
+  --color9: #DDFFE8;
+  --color10: #FFEAE9;
   --header-size: 168px;
   --header-row-size: 72px;
   --bottom-menu-size: 72px;
@@ -55,22 +57,52 @@ body {
   padding: 0;
   margin: 0;
 }
-
+.border-panel{
+  border:1px solid #ccc;
+  padding:12px;border-radius:12px;
+}
 .button-1 {
-  height:36px;
+  height: 36px;
   background: none;
-  border:none;
-  color:var(--color2);
-  font-size:14px;
+  border: none;
+  color: var(--color2);
+  font-size: 14px;
   font-weight: bold;
 }
-.button-2{
-  border:none;
-  color:#fff;
-  height:36px;
-  border-radius:6px;
+.ai-sidenav{
+  background:var(--color1);
+}
+.ai-sidenav:after{
+  display:none;
+}
+.button-2 {
+  border: none;
+  color: #fff;
+  height: 36px;
+  border-radius: 6px;
   background: var(--color2);
-  font-size:14px;
+  font-size: 14px;
+}
+.button-3{
+  color:#4EA2FF;
+  display:flex;
+  align-items: center;
+  gap:4px;
+  font-size:12px;
+}
+.button-4{
+  color:#e21414;
+  display:flex;
+  align-items: center;
+  gap:4px;
+  font-size:16px;
+  background:none;
+  border:none;
+  border-radius:6px;
+  height:48px;
+  font-weight:bold;
+  padding:0 36px;
+  cursor: pointer;
 }
 .button-2:disabled {
   opacity: 0.5;
@@ -81,15 +113,19 @@ body {
 .color-2 {
   color: var(--color2)
 }
-.color-6{
-  color:var(--color6);
+
+.color-6 {
+  color: var(--color6);
 }
-.color-7{
-  color:var(--color7);
+
+.color-7 {
+  color: var(--color7);
 }
-.border-6{
-  border:1px solid var(--color6);
+
+.border-6 {
+  border: 1px solid var(--color6);
 }
+
 .bg-2 {
   background: var(--color2)
 }
@@ -105,15 +141,27 @@ body {
 .bg-5 {
   background: var(--color5)
 }
-.bg-8{
-  background:var(--color8);
+
+.bg-8 {
+  background: var(--color8);
 }
+
+.bg-9 {
+  background: var(--color9);
+}
+
+.bg-10 {
+  background: var(--color10);
+}
+
 .brd-2 {
   border: 1px solid var(--color2);
 }
-.shadow-top{
-  box-shadow: 0 -2px 12px 1px rgba(0,0,0,0.1);
+
+.shadow-top {
+  box-shadow: 0 -2px 12px 1px rgba(0, 0, 0, 0.2);
 }
+
 .app {
   position: fixed;
   left: 0;
@@ -250,15 +298,15 @@ body {
   height: 48px
 }
 
-.bottom-dropdown {
+.bottom-modal-height-fit-content {
   height: fit-content;
 }
 
-.bottom-dropdown .aio-input-dropdown-options {
+.bottom-modal-height-fit-content .aio-input-dropdown-options {
   padding: 12px;
 }
 
-.bottom-dropdown .aio-input-dropdown-option {
+.bottom-modal-height-fit-content .aio-input-dropdown-option {
   border: 1px solid #ccc;
   margin-bottom: 6px;
   border-radius: 8px;
@@ -286,4 +334,12 @@ body {
 .buttons-1 .aio-input-buttons-option.active {
   background: #fff;
   color: #000;
+}
+
+.time-box {
+  background: orange;
+  color: #fff;
+  padding: 0 12px;
+  border-radius: 4px;
+  font-weight: bold;
 }

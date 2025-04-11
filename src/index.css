@@ -3892,53 +3892,89 @@ input {
 }
 
 .bf-0- {
-  backdrop-filter: blur0px !important;
+  backdrop-filter: blur(0px) !important;
 }
 
 .bf-1- {
-  backdrop-filter: blur1px !important;
+  backdrop-filter: blur(1px) !important;
 }
 
 .bf-2- {
-  backdrop-filter: blur2px !important;
+  backdrop-filter: blur(2px) !important;
 }
 
 .bf-3- {
-  backdrop-filter: blur3px !important;
+  backdrop-filter: blur(3px) !important;
 }
 
 .bf-4- {
-  backdrop-filter: blur4px !important;
+  backdrop-filter: blur(4px) !important;
 }
 
 .bf-5- {
-  backdrop-filter: blur5px !important;
+  backdrop-filter: blur(5px) !important;
 }
 
 .bf-6- {
-  backdrop-filter: blur6px !important;
+  backdrop-filter: blur(6px) !important;
 }
 
 .bf-7- {
-  backdrop-filter: blur7px !important;
+  backdrop-filter: blur(7px) !important;
 }
 
 .bf-8- {
-  backdrop-filter: blur8px !important;
+  backdrop-filter: blur(8px) !important;
 }
 
 .bf-9- {
-  backdrop-filter: blur9px !important;
+  backdrop-filter: blur(9px) !important;
 }
 
 .bf-10- {
-  backdrop-filter: blur10px !important;
+  backdrop-filter: blur(10px) !important;
 }
 
 .bf-11- {
-  backdrop-filter: blur11px !important;
+  backdrop-filter: blur(11px) !important;
 }
 
 .bf-12- {
-  backdrop-filter: blur12px !important;
+  backdrop-filter: blur(12px) !important;
+}
+.z-1-{
+  z-index:10;  
+}
+.z-2-{
+  z-index:100;  
+}
+.z-3-{
+  z-index:1000;  
+}
+.z-4-{
+  z-index:10000;  
+}
+.z-5-{
+  z-index:100000;  
+}
+.z-6-{
+  z-index:1000000;  
+}
+.z-7-{
+  z-index:10000000;  
+}
+.z-8-{
+  z-index:100000000;  
+}
+.z-9-{
+  z-index:1000000000;  
+}
+.z-10-{
+  z-index:10000000000;  
+}
+.z-11-{
+  z-index:100000000000;  
+}
+.z-12-{
+  z-index:1000000000000;  
 }

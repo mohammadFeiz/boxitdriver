@@ -1,20 +1,23 @@
 import { FC, ReactNode, useState } from "react";
-import { Timeline } from "../../components/timeline";
-import { I_consignment, I_shift } from "../../types";
+import { useTimeline } from "../../components/timeline";
+import { I_consignment, I_shift, I_shiftsHook } from "../../types";
 import ArrowButton from "../../components/arrow-button";
 import { SplitNumber } from "aio-utils";
 import TimeRange from "../../components/time-range";
 import Pair from "../../components/pair";
 import AIMap from "aio-map";
-import { dateShifts } from "../../mock";
 import usePopup from "aio-popup";
 import FooterButtons from "../../components/footer-buttons";
 import { MyShiftProvider, useMyShiftContext } from "./context";
 import { AICheckbox } from "aio-input";
+import { useAppContext } from "../../context";
+import { useShifts } from "./useShifts";
 type I_activeItems = {[id:string]:I_consignment | undefined}
 const MyShift: FC = () => {
-    const shifts: I_shift[] = dateShifts[1].shifts
+    const {apis} = useAppContext()
     const popup = usePopup()
+    const shiftsHook = useShifts(apis)
+    const timelineHook = useTimeline((newDate)=>shiftsHook.getShifts(newDate))
     const [activeItems,SetActiveItems] = useState<I_activeItems>({})
     const setActiveItem = (consignment:I_consignment)=>{
         const isActive = !!activeItems[consignment.id.toString()]
@@ -36,18 +39,18 @@ const MyShift: FC = () => {
     return (
         <MyShiftProvider value={{ openDetailsModal, popup, openScanModal,activeItems,setActiveItem }}>
             <div className="app-page flex-col- gap-12-">
-                <Timeline />
-                <Shifts shifts={shifts} />
+                {timelineHook.render()}
+                <Shifts shiftsHook={shiftsHook} />
             </div>
             {popup.render()}
         </MyShiftProvider>
     )
 }
 export default MyShift
-const Shifts: FC<{ shifts: I_shift[] }> = ({ shifts }) => {
+const Shifts: FC<{ shiftsHook: I_shiftsHook }> = ({ shiftsHook }) => {
     return (
         <div className="flex-col- gap-12- p-12- flex-1- ofy-auto-">
-            {shifts.map((shift, i) => <ShiftCard key={i} shift={shift} />)}
+            {shiftsHook.shifts.map((shift, i) => <ShiftCard key={i} shift={shift} />)}
         </div>
     )
 }
@@ -160,14 +163,14 @@ const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ s
 
 const Scan: FC = () => {
     const [consignments,setConsignments] = useState<I_consignment[]>([
-        {id:0,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
-        {id:1,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
-        {id:2,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
-        {id:3,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
-        {id:4,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
-        {id:5,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
-        {id:6,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
-        {id:7,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:''},
+        {id:0,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:1,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:2,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:3,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:4,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:5,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:6,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:7,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
     ])
     return (
         <div className="fs-12- flex-col- gap-12-">
@@ -237,3 +240,5 @@ const ScanInput: FC<{ label?: string }> = ({ label }) => {
         </div>
     )
 }
+
+
