@@ -1,4 +1,4 @@
-import { I_usePopup } from "aio-popup"
+import { AP_header, I_usePopup } from "aio-popup"
 import { I_consignment } from "../../types"
 import FailedReason from "../../components/failed-reason"
 import CodePaymentModal from "../../components/cod-payment-modal"
@@ -11,12 +11,13 @@ type I_openPaymentModal = (cods: I_consignment[], onPaymentSuccess: () => void, 
 type I_openDeliveryModal = (consignments: I_consignment[], multiple: boolean) => void
 type I_openLocationsModal = (consignments: I_consignment[]) => void
 type I_openPriorityModal = (consignments: I_consignment[]) =>void
+type I_codPaymentFailedModal = (onRetry:()=>void,onCansel:()=>void)=>void
 export type I_homeModalHook = {
     openFailedModal:I_openFailedModal,
     openPaymentModal:I_openPaymentModal,
     openDeliveryModal:I_openDeliveryModal,
     openLocationsModal:I_openLocationsModal,
-    openPriorityModal:I_openPriorityModal
+    openPriorityModal:I_openPriorityModal,
 }
 export const useHomeModal = (popup:I_usePopup):I_homeModalHook=>{
     const openFailedModal = (type: 'delivery' | 'pickup', consignments: I_consignment[], multiple: boolean) => {
@@ -35,7 +36,7 @@ export const useHomeModal = (popup:I_usePopup):I_homeModalHook=>{
                 if (key === "backdrop") { return { className: 'dark-backdrop' } }
             },
             header: { title: 'صورتحساب' },
-            body: (<CodePaymentModal cods={cods} onPaymentSuccess={onPaymentSuccess} onFailedDelivery={onFailedDelivery} />)
+            body: (<CodePaymentModal popup={popup} cods={cods} onPaymentSuccess={onPaymentSuccess} onFailedDelivery={onFailedDelivery}/>)
         })
     }
     const openDeliveryModal = (consignments: I_consignment[], multiple: boolean) => {
@@ -72,6 +73,6 @@ export const useHomeModal = (popup:I_usePopup):I_homeModalHook=>{
         openPaymentModal,
         openDeliveryModal,
         openLocationsModal,
-        openPriorityModal
+        openPriorityModal,
     }
 }

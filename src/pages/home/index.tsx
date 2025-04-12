@@ -31,6 +31,7 @@ const Home: FC = () => {
     const arriveToDestinationButton = (consignments: I_consignment[], multiple: boolean) => {
         const cods = getCodsFromList(consignments)
         if (cods.length) {
+            popup.removeModal()
             homeModalHook.openPaymentModal(
                 cods,
                 () => homeModalHook.openDeliveryModal(consignments, multiple),

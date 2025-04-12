@@ -49,11 +49,26 @@ export class Apis extends AIOApis {
         }
     }
     codsPayment = async (cods: I_consignment[]) => {
-        return true
+        return false
     }
-    priorityByParsiMap = async (consignments: I_consignment[]) => {
-        if (this.mock) { return this.priorityByParsiMap_mock(consignments) }
-        return consignments
+    getWeyPoints = (consignments:I_consignment[])=>{
+        const res:string[] = consignments.map((o)=>`${o.lng},${o.lat}`) 
+        return res.join('|')
+    }
+    priorityByParsiMap = async (consignments: I_consignment[]):Promise<any> => {
+        //if (this.mock) { return this.priorityByParsiMap_mock(consignments) }
+        const key = 'p17629b8b76ae143a78ecc70946e02ee65ba0d2b6c'
+        const travelMode = 'driving'
+        const waypoints = this.getWeyPoints(consignments)
+        debugger
+        const {response,success} = await this.request<any>({
+            name:'priorityByParsiMap',
+            description:'مرتب سازی موقعیت ها',
+            method:'get',token:undefined,
+            url:`https://api.parsimap.ir/direction/optimized-route?key=${key}&travel_mode=${travelMode}&waypoints=${waypoints}&traffic=true`
+        })
+        if(success){debugger}
+        
     }
     sendNewPriority = async (consignments: I_consignment[]) => {
         const { success } = await this.request({
@@ -85,7 +100,7 @@ export class Apis extends AIOApis {
         const data: I_consignment[] = [
             {
                 id: 0,
-                lat: 0, lng: 0,
+                lat: 35.734111635102636, lng: 51.31181854551543,
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
@@ -98,7 +113,7 @@ export class Apis extends AIOApis {
             },
             {
                 id: 1,
-                lat: 0, lng: 0,
+                lat: 35.77144699302495, lng: 51.34649262617234,
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
@@ -110,7 +125,7 @@ export class Apis extends AIOApis {
             },
             {
                 id: 2,
-                lat: 0, lng: 0,
+                lat: 35.618930589036324, lng: 51.42116581921271,
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
@@ -121,7 +136,7 @@ export class Apis extends AIOApis {
             },
             {
                 id: 3,
-                lat: 0, lng: 0,
+                lat: 35.63762742911838, lng: 51.48056105265559,
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
