@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC } from "react";
 
 const StepNumber: FC<{value:number,onChange:(v:number)=>void}> = ({value,onChange}) => {
     const changeByDir = (dir:-1 | 1)=>{

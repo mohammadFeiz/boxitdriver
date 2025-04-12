@@ -1,4 +1,4 @@
-import { AP_header, I_usePopup } from "aio-popup"
+import { I_usePopup } from "aio-popup"
 import { I_consignment } from "../../types"
 import FailedReason from "../../components/failed-reason"
 import CodePaymentModal from "../../components/cod-payment-modal"
@@ -11,7 +11,6 @@ type I_openPaymentModal = (cods: I_consignment[], onPaymentSuccess: () => void, 
 type I_openDeliveryModal = (consignments: I_consignment[], multiple: boolean) => void
 type I_openLocationsModal = (consignments: I_consignment[]) => void
 type I_openPriorityModal = (consignments: I_consignment[]) =>void
-type I_codPaymentFailedModal = (onRetry:()=>void,onCansel:()=>void)=>void
 export type I_homeModalHook = {
     openFailedModal:I_openFailedModal,
     openPaymentModal:I_openPaymentModal,
@@ -24,7 +23,7 @@ export const useHomeModal = (popup:I_usePopup):I_homeModalHook=>{
         if (type === 'delivery') {
             popup.addModal({
                 header: { title: 'عدم تحویل' },
-                body: (<FailedReason consignments={consignments} multiple={multiple} onSubmit={(data: any) => { }} onCansel={() => popup.removeModal()} />)
+                body: (<FailedReason consignments={consignments} multiple={multiple} onSubmit={() => { }} onCansel={() => popup.removeModal()} />)
             })
         }
     }

@@ -1,5 +1,5 @@
 import AIODate from "aio-date";
-import { FC, ReactNode, useState } from "react";
+import { FC, useState } from "react";
 import * as svgs from './../assets/svgs';
 import { I_timelineHook } from "../types";
 type I_day = {

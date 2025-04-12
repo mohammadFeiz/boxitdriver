@@ -162,7 +162,7 @@ const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ s
 }
 
 const Scan: FC = () => {
-    const [consignments,setConsignments] = useState<I_consignment[]>([
+    const [consignments] = useState<I_consignment[]>([
         {id:0,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
         {id:1,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
         {id:2,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},

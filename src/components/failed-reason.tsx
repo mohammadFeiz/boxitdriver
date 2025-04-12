@@ -24,6 +24,7 @@ const FailedReason: FC<{ consignments: I_consignment[], multiple: boolean, onSub
     const form = useForm<I_failedDeliveryModel>({
         initData: {},
         isRequired: (data, field) => {
+            if(data){}
             if (field === 'reason') { return true }
             return false
         },

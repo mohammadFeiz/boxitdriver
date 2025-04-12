@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { I_consignment, I_consignmentHook, I_timelineHook } from "../../types"
+import { I_consignment, I_consignmentHook } from "../../types"
 import { Apis } from "../../apis"
 import AIODate from "aio-date"
 

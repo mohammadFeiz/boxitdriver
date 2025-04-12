@@ -43,7 +43,7 @@ const Suggestions: FC = () => {
         <SuggestionProvider value={{ openShiftModal }}>
             <div className="app-page">
                 <div className="h-100- ofy-auto- br-16- p-v-12-">
-                    {dateShifts.map((ds, i) => (
+                    {dateShifts.map((ds) => (
                         <ShiftGroup key={`${ds.dateArray[0]}/${ds.dateArray[1]}/${ds.dateArray[2]}`} dateShift={ds} />
                     ))}
                 </div>

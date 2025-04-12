@@ -42,6 +42,7 @@ export class Apis extends AIOApis {
 
     }
     getCODsAmounts = async (cods: I_consignment[]) => {
+        if(cods){/**prevent vite build error */}
         return {
             product: 1250000,
             send: 150000,
@@ -49,25 +50,45 @@ export class Apis extends AIOApis {
         }
     }
     codsPayment = async (cods: I_consignment[]) => {
+        if(cods){/**prevent vite build error */}
         return false
     }
-    getWeyPoints = (consignments:I_consignment[])=>{
+    getWeyPoints = async (consignments:I_consignment[]):Promise<string | null>=>{
         const res:string[] = consignments.map((o)=>`${o.lng},${o.lat}`) 
+        const currentLocation = await getUserLocation()
+        if(currentLocation === null){
+            this.addAlert({
+                type: 'error',
+                text: 'خطا در دریافت موقعیت مکانی شما',
+            })
+        }
+        else {res.unshift(`${currentLocation.lng},${currentLocation.lat}`)}
         return res.join('|')
     }
     priorityByParsiMap = async (consignments: I_consignment[]):Promise<any> => {
-        //if (this.mock) { return this.priorityByParsiMap_mock(consignments) }
+        if (this.mock) { return this.priorityByParsiMap_mock(consignments) }
         const key = 'p17629b8b76ae143a78ecc70946e02ee65ba0d2b6c'
         const travelMode = 'driving'
         const waypoints = this.getWeyPoints(consignments)
-        debugger
-        const {response,success} = await this.request<any>({
+        const {success} = await this.request<{
+            data:{
+                legs:{
+                    distance:{text:string,value:number},
+                    duration:{text:string,value:number},
+                    start_location:{lat:number,lng:number},
+                    end_location:{lat:number,lng:number},
+                }[]
+            }
+        }>({
             name:'priorityByParsiMap',
             description:'مرتب سازی موقعیت ها',
             method:'get',token:undefined,
             url:`https://api.parsimap.ir/direction/optimized-route?key=${key}&travel_mode=${travelMode}&waypoints=${waypoints}&traffic=true`
         })
-        if(success){debugger}
+        if(success){
+            //const legs = response.data.legs
+        }
+        else {return false}
         
     }
     sendNewPriority = async (consignments: I_consignment[]) => {
@@ -152,6 +173,7 @@ export class Apis extends AIOApis {
         return consignments
     }
     private sendNewPriority_mock = (consignments: I_consignment[]) => {
+        if(consignments){/**prevent vite build error */}
         return { data: undefined, status: 200 }
     }
     private getShifts_mock = ():{data:I_shift[],status:number}=>{
@@ -220,4 +242,42 @@ export class Apis extends AIOApis {
         ]
         return {data,status:200}
     }
+}
+
+
+type Coordinates = { lat: number; lng: number };
+
+export async function getUserLocation(): Promise<Coordinates | null> {
+  try {
+    // مرحله ۱: چک کن API ها موجود هستن
+    if (!navigator.permissions || !navigator.geolocation) {
+      console.warn("Geolocation or Permissions API not supported.");
+      return null;
+    }
+
+    // مرحله ۲: درخواست اجازه برای دسترسی به موقعیت
+    const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
+
+    if (permissionStatus.state === "denied") {
+      console.warn("Location permission denied by user.");
+      return null;
+    }
+
+    // مرحله ۳: گرفتن لوکیشن
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    });
+
+    return {
+      lat: position.coords.latitude,
+      lng: position.coords.longitude
+    };
+  } catch (err) {
+    console.error("Failed to get location:", err);
+    return null;
+  }
 }

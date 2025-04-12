@@ -1,6 +1,5 @@
-import { FC, useState } from "react"
+import { FC } from "react"
 import { I_consignment, I_deliveryModel, I_deliveryModelType } from "../types"
-import FailedReason from "./failed-reason"
 import FooterButtons from "./footer-buttons"
 import ImagePlaceholder from "./image-placeholder"
 import { useForm } from "aio-input"
