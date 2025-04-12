@@ -122,7 +122,7 @@ const Toolbar: FC = () => {
     const { isAllSelected, selectAll } = consignmentHook
     const options: I_priorityType[] = ['pin', 'driver']
     return (
-        <div className="flex-row- p-h-12- h-36- align-v- gap-6-">
+        <div className="flex-row- p-b-12- p-h-12- h-48- align-v- gap-6- shadow-bottom">
             <AICheckbox value={isAllSelected()} onChange={() => selectAll()} />
             <div className="bold- fs-14- flex-1-">انتخاب همه</div>
             <AISelect

@@ -123,7 +123,7 @@ const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ s
                     <div className="brd-c-12- br-12- p-12- flex-col- gap-12-">
                         <div className="flex-row- align-v- brd-c-12- brd-b- h-36- p-b-12-">
                             <div className="flex-1- bold-">{`شماره شیفت : ${shift.number}`}</div>
-                            <div className="color-6 bold- fs-14-" onClick={openRejectModal}>انصراف از توزیع</div>
+                            <div className="color-6 bold- fs-14- pointer-" onClick={openRejectModal}>انصراف از توزیع</div>
                         </div>
                         <div className="flex-row- align-v-">
                             <div className="flex-1-"><Pair label='تاریخ :' value={shift.date} dir='v' /></div>
