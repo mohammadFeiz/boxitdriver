@@ -51,7 +51,7 @@ const Card: FC<{ consignment: I_consignment, index: number, options: number[], r
             <div className="flex-row- align-v- gap-6-">
                 <svgs.reOrder />
                 <AISelect
-                    value={index}
+                    value={index} popover={{fitHorizontal:true}}
                     options={options} className='bg-none- brd-c-10- flex-1-'
                     option={{
                         text: (index) => `اولویت ${index + 1}`,
@@ -71,3 +71,4 @@ const Card: FC<{ consignment: I_consignment, index: number, options: number[], r
         </div>
     )
 }
+//xlsm

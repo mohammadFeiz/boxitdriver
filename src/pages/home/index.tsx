@@ -180,4 +180,3 @@ const MultiSelectFooter: FC = () => {
         </div>
     )
 }
-
