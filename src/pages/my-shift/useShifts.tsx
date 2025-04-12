@@ -12,6 +12,6 @@ export const useShifts = (apis:Apis):I_shiftsHook=>{
         if(res){setShifts(res)}
         else {setretry(true)}
     }
-    useEffect(()=>{getShifts()})
+    useEffect(()=>{getShifts()},[])
     return {shifts,retry,getShifts}
 }
