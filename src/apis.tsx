@@ -1,29 +1,72 @@
 import AIOApis from "aio-apis";
 import { I_consignment, I_consignmentLocationTimes, I_shift } from "./types";
-
+type I_consignmentServer = {
+    selectDriverCardType: { id: 0 | 1 },
+    selectStatus: { id: number, text: string },
+    cprNumber: any,
+    receiverAddress: string,
+    receiver: string,
+    description: string,
+    lat: number,
+    longitude: number,
+    hasPostPaid:boolean,
+    hasAuthentication:boolean,
+    hasCostOfGoods:boolean
+}
 export class Apis extends AIOApis {
     base_url: string;
+    driverId: number;
     mock: boolean = true;
     mockDelay: number = 2000;
-    constructor(p: { token: string, base_url: string }) {
+    constructor(p: { token: string, base_url: string, driverId: number }) {
         super({
             id: 'boxitdriver',
             token: p.token, lang: 'fa',
             handleErrorMessage: () => 'error'
         })
-        this.base_url = p.base_url
+        this.base_url = p.base_url;
+        this.driverId = p.driverId;
+    }
+    consignmentServerToClient = (obj: I_consignmentServer) => {
+        const res: I_consignment = {
+            type: obj.selectDriverCardType.id === 0 ? 'pickup' : 'delivery',
+            status: obj.selectStatus,
+            number: obj.cprNumber,
+            shift: 'شیفت 1',
+            address: obj.receiverAddress,
+            id: obj.cprNumber,
+            receiver: obj.receiver,
+            description: typeof obj.description === 'string' ? obj.description : '',
+            lat: obj.lat, lng: obj.longitude,
+            isCod:obj.hasPostPaid === true,
+            tag_ehrazeHoviat:obj.hasAuthentication === true,
+            tag_hazineYeKala:obj.hasCostOfGoods === true
+        }
+        return res
     }
     getConsignments = async (date: number[]) => {
-        const { success, response } = await this.request<{ data: I_consignment[] }>({
+        const year = '1402'
+        const month = '11'
+        const day = '29'
+        const path = this.getUrlQueryParam({
+            driverId: this.driverId.toString(),
+            // year:date[0].toString(),
+            // month:date[1].toString(),
+            // day:date[2].toString(),
+            year,
+            month,
+            day,
+        })
+        const { success, response } = await this.request<{ data: { response: I_consignmentServer[] } }>({
             name: 'getConsignments',
             method: 'get',
-            url: `${this.base_url}/getConsignments`,
+            url: `${this.base_url}/consignment-api/driverService/DriverDeliveryPickUpGrid${path}`,
             description: 'دریافت لیست مرسوله ها',
             body: { date },
-            mock: this.mock ? this.getConsignments_mock : undefined,
-            mockDelay: this.mockDelay
+            //mock: this.mock ? this.getConsignments_mock : undefined,
+            //mockDelay: this.mockDelay
         })
-        if (success) { return response.data }
+        if (success) {return response.data.response.map((o) => this.consignmentServerToClient(o))}
         else { return false }
 
     }
@@ -37,12 +80,12 @@ export class Apis extends AIOApis {
             return res
         }
         else {
-            return false 
+            return false
         }
 
     }
     getCODsAmounts = async (cods: I_consignment[]) => {
-        if(cods){/**prevent vite build error */}
+        if (cods) {/**prevent vite build error */ }
         return {
             product: 1250000,
             send: 150000,
@@ -50,46 +93,46 @@ export class Apis extends AIOApis {
         }
     }
     codsPayment = async (cods: I_consignment[]) => {
-        if(cods){/**prevent vite build error */}
+        if (cods) {/**prevent vite build error */ }
         return false
     }
-    getWeyPoints = async (consignments:I_consignment[]):Promise<string | null>=>{
-        const res:string[] = consignments.map((o)=>`${o.lng},${o.lat}`) 
+    getWeyPoints = async (consignments: I_consignment[]): Promise<string | null> => {
+        const res: string[] = consignments.map((o) => `${o.lng},${o.lat}`)
         const currentLocation = await getUserLocation()
-        if(currentLocation === null){
+        if (currentLocation === null) {
             this.addAlert({
                 type: 'error',
                 text: 'خطا در دریافت موقعیت مکانی شما',
             })
         }
-        else {res.unshift(`${currentLocation.lng},${currentLocation.lat}`)}
+        else { res.unshift(`${currentLocation.lng},${currentLocation.lat}`) }
         return res.join('|')
     }
-    priorityByParsiMap = async (consignments: I_consignment[]):Promise<any> => {
+    priorityByParsiMap = async (consignments: I_consignment[]): Promise<any> => {
         if (this.mock) { return this.priorityByParsiMap_mock(consignments) }
         const key = 'p17629b8b76ae143a78ecc70946e02ee65ba0d2b6c'
         const travelMode = 'driving'
         const waypoints = this.getWeyPoints(consignments)
-        const {success} = await this.request<{
-            data:{
-                legs:{
-                    distance:{text:string,value:number},
-                    duration:{text:string,value:number},
-                    start_location:{lat:number,lng:number},
-                    end_location:{lat:number,lng:number},
+        const { success } = await this.request<{
+            data: {
+                legs: {
+                    distance: { text: string, value: number },
+                    duration: { text: string, value: number },
+                    start_location: { lat: number, lng: number },
+                    end_location: { lat: number, lng: number },
                 }[]
             }
         }>({
-            name:'priorityByParsiMap',
-            description:'مرتب سازی موقعیت ها',
-            method:'get',token:undefined,
-            url:`https://api.parsimap.ir/direction/optimized-route?key=${key}&travel_mode=${travelMode}&waypoints=${waypoints}&traffic=true`
+            name: 'priorityByParsiMap',
+            description: 'مرتب سازی موقعیت ها',
+            method: 'get', token: undefined,
+            url: `https://api.parsimap.ir/direction/optimized-route?key=${key}&travel_mode=${travelMode}&waypoints=${waypoints}&traffic=true`
         })
-        if(success){
+        if (success) {
             //const legs = response.data.legs
         }
-        else {return false}
-        
+        else { return false }
+
     }
     sendNewPriority = async (consignments: I_consignment[]) => {
         const { success } = await this.request({
@@ -103,18 +146,18 @@ export class Apis extends AIOApis {
         if (success) { return true }
         else { return false }
     }
-    getShifts = async (date:number[])=>{
-        const {response,success} = await this.request<{data:I_shift[]}>({
-            name:'',
-            description:'دریافت شیفت ها',
-            method:'post',
-            url:`${this.base_url}/getShifts`,
-            body:{date},
-            mock:this.mock?this.getShifts_mock:undefined,
-            mockDelay:this.mockDelay
+    getShifts = async (date: number[]) => {
+        const { response, success } = await this.request<{ data: I_shift[] }>({
+            name: '',
+            description: 'دریافت شیفت ها',
+            method: 'post',
+            url: `${this.base_url}/getShifts`,
+            body: { date },
+            mock: this.mock ? this.getShifts_mock : undefined,
+            mockDelay: this.mockDelay
         })
-        if(success){return response.data}
-        else {return false}
+        if (success) { return response.data }
+        else { return false }
     }
     private getConsignments_mock = () => {
         //return {status:400,data:{}}
@@ -125,7 +168,7 @@ export class Apis extends AIOApis {
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: "delivary_pending",
+                status: { id: 0, text: 'در انتظار تحویل' },
                 type: 'delivery',
                 number: '6455235465',
                 shift: 'شیفت 1',
@@ -138,7 +181,7 @@ export class Apis extends AIOApis {
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: "pickup_pending",
+                status: { id: 0, text: 'در انتظار جمع آوری' },
                 type: 'pickup',
                 number: '8566456456',
                 shift: 'شیفت 1',
@@ -150,7 +193,7 @@ export class Apis extends AIOApis {
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: "delivary_success",
+                status: { id: 0, text: 'تحویل موفق' },
                 type: 'delivery',
                 number: '7674645634',
                 shift: 'شیفت 1'
@@ -161,7 +204,7 @@ export class Apis extends AIOApis {
                 address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
                 receiver: 'سها مرتضایی',
                 description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: "pickup_unsuccess",
+                status: { id: 0, text: 'جمع آوری موفق' },
                 type: 'pickup',
                 number: '98545645',
                 shift: 'شیفت 1'
@@ -173,74 +216,74 @@ export class Apis extends AIOApis {
         return consignments
     }
     private sendNewPriority_mock = (consignments: I_consignment[]) => {
-        if(consignments){/**prevent vite build error */}
+        if (consignments) {/**prevent vite build error */ }
         return { data: undefined, status: 200 }
     }
-    private getShifts_mock = ():{data:I_shift[],status:number}=>{
+    private getShifts_mock = (): { data: I_shift[], status: number } => {
         const data = [
-            { 
-                hub:{
-                    name:'هاب تهران',
-                    address:'تهران شریعتی نرسیده به پل رومی',
-                    id:12,
-                    lat:51.453534,
-                    lng:35.45645
+            {
+                hub: {
+                    name: 'هاب تهران',
+                    address: 'تهران شریعتی نرسیده به پل رومی',
+                    id: 12,
+                    lat: 51.453534,
+                    lng: 35.45645
                 },
-                number:'123456',
-                timeRange: [8, 11], 
-                amount: 12300000, 
-                zone: 'میدان انقلاب (هاب نواب)', 
-                date: '1404/3/4', 
-                id: 0 
+                number: '123456',
+                timeRange: [8, 11],
+                amount: 12300000,
+                zone: 'میدان انقلاب (هاب نواب)',
+                date: '1404/3/4',
+                id: 0
             },
-            { 
-                hub:{
-                    name:'هاب تهران',
-                    address:'تهران شریعتی نرسیده به پل رومی',
-                    id:12,
-                    lat:51.453534,
-                    lng:35.45645
+            {
+                hub: {
+                    name: 'هاب تهران',
+                    address: 'تهران شریعتی نرسیده به پل رومی',
+                    id: 12,
+                    lat: 51.453534,
+                    lng: 35.45645
                 },
-                number:'123456',
-                timeRange: [8, 11], 
-                amount: 12300000, 
-                zone: 'میدان انقلاب (هاب نواب)', 
-                date: '1404/3/4', 
-                id: 1 
+                number: '123456',
+                timeRange: [8, 11],
+                amount: 12300000,
+                zone: 'میدان انقلاب (هاب نواب)',
+                date: '1404/3/4',
+                id: 1
             },
-            { 
-                hub:{
-                    name:'هاب تهران',
-                    address:'تهران شریعتی نرسیده به پل رومی',
-                    id:12,
-                    lat:51.453534,
-                    lng:35.45645
+            {
+                hub: {
+                    name: 'هاب تهران',
+                    address: 'تهران شریعتی نرسیده به پل رومی',
+                    id: 12,
+                    lat: 51.453534,
+                    lng: 35.45645
                 },
-                number:'123456',
-                timeRange: [8, 11], 
-                amount: 12300000, 
-                zone: 'میدان انقلاب (هاب نواب)', 
-                date: '1404/3/4', 
-                id: 2 
+                number: '123456',
+                timeRange: [8, 11],
+                amount: 12300000,
+                zone: 'میدان انقلاب (هاب نواب)',
+                date: '1404/3/4',
+                id: 2
             },
-            { 
-                hub:{
-                    name:'هاب تهران',
-                    address:'تهران شریعتی نرسیده به پل رومی',
-                    id:12,
-                    lat:51.453534,
-                    lng:35.45645
+            {
+                hub: {
+                    name: 'هاب تهران',
+                    address: 'تهران شریعتی نرسیده به پل رومی',
+                    id: 12,
+                    lat: 51.453534,
+                    lng: 35.45645
                 },
-                number:'123456',
-                timeRange: [8, 11], 
-                amount: 12300000, 
-                zone: 'میدان انقلاب (هاب نواب)', 
-                date: '1404/3/4', 
-                id: 3 
+                number: '123456',
+                timeRange: [8, 11],
+                amount: 12300000,
+                zone: 'میدان انقلاب (هاب نواب)',
+                date: '1404/3/4',
+                id: 3
             },
 
         ]
-        return {data,status:200}
+        return { data, status: 200 }
     }
 }
 
@@ -248,36 +291,36 @@ export class Apis extends AIOApis {
 type Coordinates = { lat: number; lng: number };
 
 export async function getUserLocation(): Promise<Coordinates | null> {
-  try {
-    // مرحله ۱: چک کن API ها موجود هستن
-    if (!navigator.permissions || !navigator.geolocation) {
-      console.warn("Geolocation or Permissions API not supported.");
-      return null;
+    try {
+        // مرحله ۱: چک کن API ها موجود هستن
+        if (!navigator.permissions || !navigator.geolocation) {
+            console.warn("Geolocation or Permissions API not supported.");
+            return null;
+        }
+
+        // مرحله ۲: درخواست اجازه برای دسترسی به موقعیت
+        const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
+
+        if (permissionStatus.state === "denied") {
+            console.warn("Location permission denied by user.");
+            return null;
+        }
+
+        // مرحله ۳: گرفتن لوکیشن
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            });
+        });
+
+        return {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+        };
+    } catch (err) {
+        console.error("Failed to get location:", err);
+        return null;
     }
-
-    // مرحله ۲: درخواست اجازه برای دسترسی به موقعیت
-    const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
-
-    if (permissionStatus.state === "denied") {
-      console.warn("Location permission denied by user.");
-      return null;
-    }
-
-    // مرحله ۳: گرفتن لوکیشن
-    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(resolve, reject, {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      });
-    });
-
-    return {
-      lat: position.coords.latitude,
-      lng: position.coords.longitude
-    };
-  } catch (err) {
-    console.error("Failed to get location:", err);
-    return null;
-  }
 }

@@ -1,5 +1,5 @@
 import { FC, ReactNode, useEffect, useState } from "react";
-import { consignment_status_dic, I_consignment, I_consignment_status } from "../../types";
+import { I_consignment } from "../../types";
 import { useHomeContext } from "./context";
 import * as svgs from '../../assets/svgs';
 import { AICheckbox } from "aio-input";
@@ -19,9 +19,13 @@ export const HomeCard: FC<{ consignment: I_consignment, index: number }> = ({ co
         </div>
     )
 }
-const Status: FC<{ status: I_consignment_status }> = ({ status }) => {
-    const { bg, color, text } = consignment_status_dic[status];
-    return (<div className="p-h-12- h-24- br-12- flex-row- align-v-" style={{ background: bg, color }}>{text}</div>)
+const Status: FC<{consignment:I_consignment}> = ({ consignment }) => {
+    const getColor = ()=>{
+        if(consignment.type === 'pickup'){return '#FFE9A1'}
+        else if(consignment.type === 'delivery'){return '#EFE7EC'}
+        return '#000000'
+    }
+    return (<div className="p-h-12- h-24- br-12- flex-row- align-v-" style={{ color: '#333', background:getColor() }}>{consignment.status.text}</div>)
 }
 
 const CardHeader: FC<{ consignment: I_consignment }> = ({ consignment }) => {
@@ -33,7 +37,7 @@ const CardHeader: FC<{ consignment: I_consignment }> = ({ consignment }) => {
             <div className="flex-row- fs-12- align-v- gap-6- h-36- p-b-6-">
                 <AICheckbox value={selected} onChange={() => selectConsignment(consignment)} />
                 <div className="bold- flex-1-">{`شماره مرسوله : ${consignment.number}`}</div>
-                <Status status={consignment.status} />
+                <Status consignment={consignment} />
             </div>
             <Splitter/>
         </>
