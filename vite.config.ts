@@ -5,6 +5,9 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server: {
     port: 3004,
+    allowedHosts:[
+      "myboxi"
+    ]
   },
   plugins: [react()],
 })

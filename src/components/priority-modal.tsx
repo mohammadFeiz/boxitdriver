@@ -15,7 +15,7 @@ const PriorityModal: FC<{ consignments: I_consignment[],onClose:()=>void }> = (p
     }
     const drag = useDrag((dragData, dropData) => reOrder(dragData.index, dropData.index))
     const submit = async ()=>{
-        const res = await apis.sendNewPriority(consignments)
+        const res = await apis.changePriority(consignments)
         if(res){
             successMessage('اولویت بندی با موفقیت انجام شد')
             props.onClose()
