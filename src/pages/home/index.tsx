@@ -18,7 +18,7 @@ const Home: FC = () => {
     const timelineHook = useTimeline((newDate)=>{
         consignmentHook.getConsignments(newDate)
     })
-    const consignmentHook = useConsignment(apis)
+    const consignmentHook = useConsignment(apis,popup)
     const homeModalHook = useHomeModal(popup)
     const searchClick = () => {
         alert('search in home')

@@ -1,5 +1,6 @@
 import AIOApis from "aio-apis";
 import { I_consignment, I_consignmentLocationTimes, I_consignmentType, I_shift } from "./types";
+import { changePriority_mock, getConsignments_mock, getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
     selectStatus: { id: number, text: string },
@@ -66,7 +67,7 @@ export class Apis extends AIOApis {
             url: `${this.base_url}/consignment-api/driverService/DriverDeliveryPickUpGrid${path}`,
             description: 'دریافت لیست مرسوله ها',
             body: { date },
-            //mock: this.mock ? this.getConsignments_mock : undefined,
+            //mock: this.mock ? getConsignments_mock : undefined,
             //mockDelay: this.mockDelay
         })
         if (success) {return response.data.response.map((o) => this.consignmentServerToClient(o))}
@@ -115,7 +116,7 @@ export class Apis extends AIOApis {
         return res.join('|')
     }
     priorityByParsiMap = async (consignments: I_consignment[]): Promise<any> => {
-        if (this.mock) { return this.priorityByParsiMap_mock(consignments) }
+        if (this.mock) { return priorityByParsiMap_mock(consignments) }
         const key = 'p17629b8b76ae143a78ecc70946e02ee65ba0d2b6c'
         const travelMode = 'driving'
         const waypoints = this.getWeyPoints(consignments)
@@ -150,7 +151,7 @@ export class Apis extends AIOApis {
         const { success } = await this.request({
             name: 'changePriority',method: 'post',body,description: 'ارسال اولویت بندی به سرور',
             url: `${this.base_url}/consignment-api/driverService/changePriority`,
-            // mock: this.mock ? () => this.changePriority_mock(consignments) : undefined,
+            //mock: this.mock ? () => changePriority_mock(consignments) : undefined,
             // mockDelay: this.mockDelay
         })
         if (success) { return true }
@@ -258,138 +259,13 @@ export class Apis extends AIOApis {
             method: 'post',
             url: `${this.base_url}/getShifts`,
             body: { date },
-            mock: this.mock ? this.getShifts_mock : undefined,
+            mock: this.mock ? getShifts_mock : undefined,
             mockDelay: this.mockDelay
         })
         if (success) { return response.data }
         else { return false }
     }
-    private getConsignments_mock = () => {
-        //return {status:400,data:{}}
-        const data: I_consignment[] = [
-            {
-                id: 0,
-                lat: 35.734111635102636, lng: 51.31181854551543,
-                address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
-                receiver: 'سها مرتضایی',
-                description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: { id: 0, text: 'در انتظار تحویل' },
-                type: 'delivery',
-                number: '6455235465',
-                shift: 'شیفت 1',
-                tag_ehrazeHoviat: true,
-                isCod: true
-            },
-            {
-                id: 1,
-                lat: 35.77144699302495, lng: 51.34649262617234,
-                address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
-                receiver: 'سها مرتضایی',
-                description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: { id: 0, text: 'در انتظار جمع آوری' },
-                type: 'pickup',
-                number: '8566456456',
-                shift: 'شیفت 1',
-                tag_hazineYeKala: true
-            },
-            {
-                id: 2,
-                lat: 35.618930589036324, lng: 51.42116581921271,
-                address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
-                receiver: 'سها مرتضایی',
-                description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: { id: 0, text: 'تحویل موفق' },
-                type: 'delivery',
-                number: '7674645634',
-                shift: 'شیفت 1'
-            },
-            {
-                id: 3,
-                lat: 35.63762742911838, lng: 51.48056105265559,
-                address: 'میدان انقلاب - خیابان 12 فروردین - خیابان شهدای فجر- پلاک36 - واحد 2',
-                receiver: 'سها مرتضایی',
-                description: 'لطفا در ساعت اداری مراجعه کنید.',
-                status: { id: 0, text: 'جمع آوری موفق' },
-                type: 'pickup',
-                number: '98545645',
-                shift: 'شیفت 1'
-            }
-        ]
-        return { data, status: 200 }
-    }
-    private priorityByParsiMap_mock = (consignments: I_consignment[]) => {
-        return consignments
-    }
-    private changePriority_mock = (consignments: I_consignment[]) => {
-        if (consignments) {/**prevent vite build error */ }
-        return { data: undefined, status: 200 }
-    }
-    private getShifts_mock = (): { data: I_shift[], status: number } => {
-        const data = [
-            {
-                hub: {
-                    name: 'هاب تهران',
-                    address: 'تهران شریعتی نرسیده به پل رومی',
-                    id: 12,
-                    lat: 51.453534,
-                    lng: 35.45645
-                },
-                number: '123456',
-                timeRange: [8, 11],
-                amount: 12300000,
-                zone: 'میدان انقلاب (هاب نواب)',
-                date: '1404/3/4',
-                id: 0
-            },
-            {
-                hub: {
-                    name: 'هاب تهران',
-                    address: 'تهران شریعتی نرسیده به پل رومی',
-                    id: 12,
-                    lat: 51.453534,
-                    lng: 35.45645
-                },
-                number: '123456',
-                timeRange: [8, 11],
-                amount: 12300000,
-                zone: 'میدان انقلاب (هاب نواب)',
-                date: '1404/3/4',
-                id: 1
-            },
-            {
-                hub: {
-                    name: 'هاب تهران',
-                    address: 'تهران شریعتی نرسیده به پل رومی',
-                    id: 12,
-                    lat: 51.453534,
-                    lng: 35.45645
-                },
-                number: '123456',
-                timeRange: [8, 11],
-                amount: 12300000,
-                zone: 'میدان انقلاب (هاب نواب)',
-                date: '1404/3/4',
-                id: 2
-            },
-            {
-                hub: {
-                    name: 'هاب تهران',
-                    address: 'تهران شریعتی نرسیده به پل رومی',
-                    id: 12,
-                    lat: 51.453534,
-                    lng: 35.45645
-                },
-                number: '123456',
-                timeRange: [8, 11],
-                amount: 12300000,
-                zone: 'میدان انقلاب (هاب نواب)',
-                date: '1404/3/4',
-                id: 3
-            },
-
-        ]
-        return { data, status: 200 }
-    }
+    
 }
 
 
