@@ -1,14 +1,42 @@
-import { FC } from "react"
+import { FC, useState } from "react"
 import { I_consignment, I_deliveryModel, I_deliveryModelType } from "../types"
 import FooterButtons from "./footer-buttons"
 import ImagePlaceholder from "./image-placeholder"
 import { useForm } from "aio-input"
+import { Signature } from "./signature"
+import usePopup from "aio-popup"
+import { useAppContext } from "../context"
+import base64ToFile from "../utils/base64_to_file"
 
-const DeliveryModal: FC<{ consignments: I_consignment[], multiple: boolean,onFailedDelivery:()=>void }> = ({ consignments, multiple,onFailedDelivery }) => {
+const DeliveryModal: FC<{ consignments: I_consignment[], multiple: boolean, onFailedDelivery: () => void, onClose: () => void }> = ({ consignments, multiple, onFailedDelivery, onClose }) => {
+    const { apis, user } = useAppContext()
+    const [sign, setSign] = useState<any>()
     const typeDic: { [key in I_deliveryModelType]: string } = {
         '0': 'نوع اول',
         '1': 'نوع دوم'
     }
+    const popup = usePopup()
+    const openSignModal = () => {
+        popup.addModal({
+            position: 'center',
+            body: (
+                <Signature
+                    attrs={{
+                        style: { width: 300, height: 300 },
+                    }}
+                    onSave={(file) => {
+                        setSign(file)
+                        popup.removeModal()
+                    }}
+                />
+            )
+        })
+    }
+    let signUrl;
+    try {
+        signUrl = URL.createObjectURL(sign) || '';
+    }
+    catch { signUrl = '' }
     const form = useForm<I_deliveryModel>({
         fa: true,
         initData: {
@@ -73,15 +101,46 @@ const DeliveryModal: FC<{ consignments: I_consignment[], multiple: boolean,onFai
                         }
                     },
                     {
-                        input: { type: 'text', field: 'sign', label: 'امضای گیرنده' }//notice
+                        html: (
+                            <div className="w-100-">
+                                <div className="ئ-ذ-12-">امضا</div>
+                                {
+                                    !!sign &&
+                                    <img src={signUrl} alt="signature" className="w-168- h-144- br-4- brd-c-13- pointer-"
+                                        onClick={() => {
+                                            openSignModal()
+                                        }}
+                                    />
+                                }
+                                {
+                                    !sign &&
+                                    <div onClick={() => openSignModal()} className="w-100- h-36- brd-c-13- br-6- flex-row- align-v- p-h-12- pointer-">
+                                        برای ثبت امضا اینجا بزنید
+                                    </div>
+                                }
+                            </div>
+                        )
                     },
                     {
-                        input: { type: 'image', field: 'image', label: 'انتخاب تصویر', placeholder: <ImagePlaceholder /> }
+                        input: { type: 'image', field: 'image', label: 'انتخاب تصویر', placeholder: <ImagePlaceholder />,width:144,imageAttrs:{style:{width:168}} }
                     },
                 ]
             }
         }
     })
+    const submit = async () => {
+        const deliveryCode = form.data.code
+        const res = await apis.successDelivery({
+            driverId: user.id,
+            consignments,
+            deliveryCode,
+            description: '',
+            signature: sign,
+            nationalCode: form.data.nationalCode,
+            image: base64ToFile(form.data.image)
+        })
+        if (res) { onClose() }
+    }
     const getContent = () => {
         return (
             <>
@@ -89,10 +148,11 @@ const DeliveryModal: FC<{ consignments: I_consignment[], multiple: boolean,onFai
                     {form.renderLayout}
                 </div>
                 <FooterButtons
-                    trueAttrs={{ disabled: form.isSubmitDisabled() }}
+                    trueAttrs={{ disabled: form.isSubmitDisabled(), onClick: submit }}
                     canselAttrs={{ onClick: () => onFailedDelivery() }}
                     trueText='تایید' canselText='عدم تحویل'
                 />
+                {popup.render()}
             </>
         )
     }

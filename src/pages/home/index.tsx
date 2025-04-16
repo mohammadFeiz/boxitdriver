@@ -13,12 +13,12 @@ import useConsignment from "./useConsignment";
 import { useHomeModal } from "./useHomeModal";
 
 const Home: FC = () => {
-    const { searchAction, apis,setretry } = useAppContext()
+    const { searchAction, apis, setretry, user } = useAppContext()
     const popup = usePopup()
-    const timelineHook = useTimeline((newDate)=>{
+    const timelineHook = useTimeline((newDate) => {
         consignmentHook.getConsignments(newDate)
     })
-    const consignmentHook = useConsignment(apis,popup)
+    const consignmentHook = useConsignment(apis, popup, setretry)
     const homeModalHook = useHomeModal(popup)
     const searchClick = () => {
         alert('search in home')
@@ -27,7 +27,7 @@ const Home: FC = () => {
         searchAction.set(() => searchClick())
     }, [])
     const getCodsFromList = (consignments: I_consignment[]) => consignments.filter((o) => o.isCod === true)
-    
+
     const arriveToDestinationButton = (consignments: I_consignment[], multiple: boolean) => {
         const cods = getCodsFromList(consignments)
         if (cods.length) {
@@ -50,7 +50,7 @@ const Home: FC = () => {
         }
     }
     const goToNavigate = (consignment: I_consignment) => {
-        const {lat,lng} = consignment
+        const { lat, lng } = consignment
         const url = `http://maps.apple.com/?daddr=${lat},${lng}`;
         window.open(url, '_blank');
     }
@@ -58,12 +58,30 @@ const Home: FC = () => {
         if (multiple) { homeModalHook.openLocationsModal(consignments) }
         else { goToNavigate(consignments[0]) }
     }
-    if(consignmentHook.reTry){
-        setretry({text:'',onClick:()=>consignmentHook.getConsignments(timelineHook.getDate())})
-        return null
+    const onFailed = async (p: { type: 'delivery' | 'pickup', consignments: I_consignment[], reason: number, image: any }): Promise<boolean> => {
+        if (p.type === 'delivery') {
+            const res = await apis.failedDelivery({
+                driverId: user.id,
+                consignments: p.consignments,
+                failedReasonId: p.reason,
+                description: ''
+            })
+            if (res) { return true }
+            else { return false }
+        }
+        else {
+            const res = await apis.failedPickup({
+                driverId: user.id,
+                consignments: p.consignments,
+                failedReasonId: p.reason,
+                description: ''
+            })
+            if (res) { return true }
+            else { return false }
+        }
     }
     return (
-        <HomeProvider value={{ popup, arriveToDestinationButton, consignmentHook, navigationButtonClick, goToNavigate, priorityButtonClick,homeModalHook }}>
+        <HomeProvider value={{ popup, arriveToDestinationButton, consignmentHook, navigationButtonClick, goToNavigate, priorityButtonClick, homeModalHook, onFailed }}>
             <div className="app-page">
                 <div className="flex-col-">
                     {timelineHook.render()}
@@ -81,17 +99,17 @@ export default Home
 type I_cell = { icon: ReactNode, text: string, count: number }
 const Counts: FC = () => {
     const { consignmentHook } = useHomeContext();
-    const [cells,setCells] = useState<I_cell[]>([
+    const [cells, setCells] = useState<I_cell[]>([
         { icon: <svgs.Icon1 />, text: 'کل', count: 0 },
         { icon: <svgs.Icon2 />, text: 'توضیع', count: 0 },
         { icon: <svgs.Icon3 />, text: 'جمع آوری', count: 0 },
     ])
-    useEffect(()=>{
-        let total = 0,pickup = 0,delivery = 0
-        for(let o of consignmentHook.consignments){
+    useEffect(() => {
+        let total = 0, pickup = 0, delivery = 0
+        for (let o of consignmentHook.consignments) {
             total += 1;
-            if(o.type === "delivery"){delivery += 1}
-            else if(o.type === "pickup"){pickup += 1}
+            if (o.type === "delivery") { delivery += 1 }
+            else if (o.type === "pickup") { pickup += 1 }
         }
         const cells: I_cell[] = [
             { icon: <svgs.Icon1 />, text: 'کل', count: total },
@@ -99,7 +117,7 @@ const Counts: FC = () => {
             { icon: <svgs.Icon3 />, text: 'جمع آوری', count: pickup },
         ]
         setCells(cells)
-    },[consignmentHook.consignments])
+    }, [consignmentHook.consignments])
 
     return (
         <div className="flex-row- m-12- br-12- of-hidden-">

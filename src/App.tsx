@@ -14,8 +14,7 @@ import usePopup from 'aio-popup';
 import { useSidemenu } from './components/sidemenu';
 import { Apis } from './apis';
 import ReTry from './components/re-try';
-import { useAuth } from 'react-oidc-context';
-
+import { Storage } from 'aio-utils';
 // function App() {
 //   const auth = useAuth();
 
@@ -39,8 +38,31 @@ import { useAuth } from 'react-oidc-context';
 //   );
 // }
 // export default App
-const App: FC = () => {
-  const token = 'eyJraWQiOiI0ODVkOTNkZC0yODc1LTQzNmQtYWEzNS0xZWY5YjNmMmY2MDQiLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJiLmFtaXJob3NlaW5pIiwicm9sZSI6WyIxNzA4MTg0Njk4ODcwNDIxIl0sImlzcyI6Imh0dHA6XC9cL2JveGk6MjAwMDAiLCJtb2JpbGUiOiIwOTIxMjE1MjY4NyIsInBsYXRmb3JtIjoiUExBVEZPUk1fQURNSU4iLCJzdXAiOiJ5ZXMiLCJhdWQiOiJnYXRld2F5LWNsaWVudC1pZCIsIm5iZiI6MTc0NDYxOTgwMCwic2NvcGUiOlsicHJvZmlsZSJdLCJpZCI6IjI0IiwiZXhwIjoxNzQ0NzA2MjAwLCJpYXQiOjE3NDQ2MTk4MDAsInVzZXJuYW1lIjoiYi5hbWlyaG9zZWluaSIsInN0YXR1cyI6IkVOQUJMRSJ9.gaHMcr8PjtPquTvdlLoM5fUbIRNJ93KhrsCG1m_vOVndh1HB2J2ZZh2tQYy_D9hwLhVjJBZxypjP0-f_dHa1o6HuXz_jPXlp5z4eCCLRhxpaUcvoCW-PkEU9JVQev10dCETeW0xIW3onH403jnvlekZ7MFveUQHPClaGP0f4OJ2pgGMZuC_6L7UXL_smMvUvZQDEw-kfKecleYfKyTfht_aacTyVKWPLm6e13SANMEb_vz5o0edzq7zBeCMobinYcTCAnEkqJ266E3g9nIhNj_T1Kx6rzgGL-daPp8DUo5XwWfUVOl5f5gJt6X-U2OeiVVPM86TwUUUMLBx0Ob00jw';
+const App:FC = ()=>{
+  const storageRef = useRef(new Storage('drivertoken'))
+  const storage = storageRef.current
+  const [token,setToken] = useState<string | undefined>(getToken)
+  function getToken(){return storage.load('token')}
+  const logout = ()=>{
+    const res = window.prompt('inter token');
+    if(typeof res === 'string'){
+      storage.save('token',res);
+      
+    }
+    window.location.reload()
+  }
+  useEffect(()=>{
+    if(!token){logout()}
+  },[])
+  if(token){return <APP token={token}/>}
+  return null
+  
+}
+const APP: FC<{token:string}> = ({token}) => {
+  // const storageRef = useRef(new Storage('drivertoken'))
+  // const storage = storageRef.current
+  // const tokenRef = useRef(storage.load('token'));
+  // const token = tokenRef.current
   const base_url = import.meta.env.VITE_BASE_URL;
   const [retry, setretry] = useState<{ onClick: () => void, text: string } | false>(false)
   AIOInputDefaults.set({
@@ -83,7 +105,7 @@ const Body: FC = () => {
         <Route path='/*' element={<Home />} />
         <Route path='/home/*' element={<Home />} />
         <Route path='/suggestions/*' element={<Suggestions />} />
-        <Route path='/myshift?*' element={<MyShift />} />
+        <Route path='/myshift/*' element={<MyShift />} />
       </Routes>
     </div>
   )

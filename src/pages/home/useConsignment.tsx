@@ -4,9 +4,8 @@ import { Apis } from "../../apis"
 import AIODate from "aio-date"
 import { I_usePopup } from "aio-popup"
 
-const useConsignment = (apis:Apis,popup:I_usePopup): I_consignmentHook => {
+const useConsignment = (apis:Apis,popup:I_usePopup,setretry:any): I_consignmentHook => {
     const [consignments, setConsignments] = useState<I_consignment[]>([])
-    const [reTry,setReTry] = useState<boolean>(false)
     const [selectedConsignments, setSelectedConsignments] = useState<I_consignment[]>([])
     const isConsignmentSelected = (id: number): boolean => !!selectedConsignments.find((o) => typeof o.id === 'number' && o.id === id)
     const selectConsignment = (consignment: I_consignment) => {
@@ -40,10 +39,13 @@ const useConsignment = (apis:Apis,popup:I_usePopup): I_consignmentHook => {
     const getConsignments = async (date?:number[]) => {
         date = date || new AIODate().getToday(true);
         const res = await apis.getConsignments(date)
-        if(res === false){setReTry(true);}
+        if(res === false){
+            setretry({text:'',onClick:()=>getConsignments(date)})
+        }
         else {
-            setReTry(false)
+            setretry(false)
             setConsignments(res)
+            
         }
     }
     const changeConsignments = (newConsignments:I_consignment[])=>{
@@ -63,7 +65,6 @@ const useConsignment = (apis:Apis,popup:I_usePopup): I_consignmentHook => {
         selectAll,
         isAllSelected,
         isThereSelected,
-        reTry
     }
 }
 export default useConsignment

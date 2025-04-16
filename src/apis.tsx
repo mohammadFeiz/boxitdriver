@@ -1,5 +1,5 @@
-import AIOApis from "aio-apis";
-import { I_consignment, I_consignmentLocationTimes, I_consignmentType, I_shift } from "./types";
+import AIOApis from "./components/aio-apis";
+import { I_consignment, I_consignmentLocationTimes, I_consignmentType, I_failedReason, I_paymentDetail, I_shift } from "./types";
 import { changePriority_mock, getConsignments_mock, getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
@@ -25,7 +25,10 @@ export class Apis extends AIOApis {
         super({
             id: 'boxitdriver',
             token: p.token, lang: 'fa',
-            handleErrorMessage: () => 'error'
+            handleErrorMessage: (err) => {
+                if(err.response?.status === 401){return ''}
+                return 'error'
+            }
         })
         this.base_url = p.base_url;
         this.driverId = p.driverId;
@@ -66,13 +69,11 @@ export class Apis extends AIOApis {
             method: 'get',
             url: `${this.base_url}/consignment-api/driverService/DriverDeliveryPickUpGrid${path}`,
             description: 'دریافت لیست مرسوله ها',
-            body: { date },
             //mock: this.mock ? getConsignments_mock : undefined,
             //mockDelay: this.mockDelay
         })
         if (success) {return response.data.response.map((o) => this.consignmentServerToClient(o))}
         else { 
-            debugger
             return false 
         }
 
@@ -92,16 +93,35 @@ export class Apis extends AIOApis {
 
     }
     getCODsAmounts = async (cods: I_consignment[]) => {
-        if (cods) {/**prevent vite build error */ }
-        return {
-            product: 1250000,
-            send: 150000,
-            total: 1400000
+        const body:string[] = cods.map((o)=>o.number)
+        const {response,success} = await this.request<any>({
+            name:'getCODsAmounts',
+            description:'دریافت اطلاعات پرداخت',
+            method:'post',
+            url:`${this.base_url}/consignment-api/driverService/driverPaymentInformation`,
+            body
+        })
+        if(success){
+            const send = response.data.response.sentCost;
+            const product = response.data.response.costOfGoods;
+            const total = send + product;
+            const res:I_paymentDetail = {send,product,total}
+            return res
+        }
+        else {
+            return false
         }
     }
-    codsPayment = async (cods: I_consignment[]) => {
-        if (cods) {/**prevent vite build error */ }
-        return false
+    codsPayment = async (consignments:I_consignment[],amount: number) => {
+        const {success,response} = await this.request<any>({
+            name:'codsPayment',
+            description:'پرداخت پس کرایه ها',
+            method:'post',
+            url:`${this.base_url}/consignment-api/driverService/driverPayment/${amount}`, 
+            body:consignments.map((o)=>o.number)
+        })
+        if(success){return true}
+        else {return false}
     }
     getWeyPoints = async (consignments: I_consignment[]): Promise<string | null> => {
         const res: string[] = consignments.map((o) => `${o.lng},${o.lat}`)
@@ -158,14 +178,30 @@ export class Apis extends AIOApis {
         else { return false }
     }
     getFailedReasonsDelivery = async ()=>{
-        const {success,response} = await this.request<any>({
+        const {success,response} = await this.request<{data:{name:string,id:number}[]}>({
             name: 'getFailedReasonsDelivery',description: 'دریافت دلایل ناموفق',method: 'get',
             url: `${this.base_url}/consignment-api/v2/driver/delivery/deliveryFailedReasonsList`,
             // mock: this.mock ? () => ({ data: [], status: 200 }) : undefined,
             // mockDelay: this.mockDelay
         })
-        if(success){}
-        else {}
+        if(success){
+            const res:I_failedReason[] =  response.data.map((o)=>({text:o.name,id:o.id}))
+            return res
+        }
+        else {return false}
+    }
+    getFailedReasonsPickup = async ()=>{
+        const {success,response} = await this.request<{data:{name:string,id:number}[]}>({
+            name: 'getFailedReasonsDelivery',description: 'دریافت دلایل ناموفق',method: 'get',
+            url: `${this.base_url}/consignment-api/driverService/driverPickUpFailedReason`,
+            // mock: this.mock ? () => ({ data: [], status: 200 }) : undefined,
+            // mockDelay: this.mockDelay
+        })
+        if(success){
+            const res:I_failedReason[] =  response.data.map((o)=>({text:o.name,id:o.id}))
+            return res
+        }
+        else {return false}
     }
     base64ToFile(base64: any, fileName = 'upload.bin') {
         const arr = base64.split(',');
@@ -179,8 +215,9 @@ export class Apis extends AIOApis {
         return new File([u8arr], fileName, { type: mime });
     }
     setImage = async (file: any) => {
+        debugger
         let fd = new FormData();
-        fd.append('file', this.base64ToFile(file))
+        fd.append('file', file)
         const { success, response } = await this.request<{ data: { response: { id: string } } }>({
             name: 'upload',
             headers: {
@@ -227,7 +264,11 @@ export class Apis extends AIOApis {
         if(success){}
         else {}
     }
-    successDelivery = async (p:{signature?:any,deliveryCode:string,nationalCode:string,description:string,consignments:I_consignment[],driverId:number})=>{
+    failedPickup = async (p:{driverId:number,file?:any,failedReasonId:number,description:string,consignments:I_consignment[]}):Promise<boolean>=>{
+        return true
+    }
+    successDelivery = async (p:{signature?:any,deliveryCode?:string,nationalCode?:string,description:string,consignments:I_consignment[],driverId:number,image?:any})=>{
+        debugger
         let signatureId:any;
         if(p.signature){
             const res = await this.setImage(p.signature);

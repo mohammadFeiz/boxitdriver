@@ -1,0 +1,30 @@
+.ai-signature{
+    border:1px solid #ddd;
+    border-radius:6px;
+    overflow:hidden;
+    display:flex;
+    flex-direction: column;
+}
+.ai-signature canvas{
+    flex:1;
+    background:#eee;
+}
+.ai-signature-footer{
+    padding:6px 12px;
+    display:flex;
+}
+.ai-signature-footer button{
+    height:36px;
+    border:none;
+    border-radius:6px;
+    padding:0 24px;
+}
+.ai-signature-clear{
+    color:red;
+    background:none;
+    font-weight:bold;
+}
+.ai-signature-save{
+    background:#0069ff;
+    color:#fff
+}
