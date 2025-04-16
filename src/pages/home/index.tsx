@@ -29,6 +29,7 @@ const Home: FC = () => {
     const getCodsFromList = (consignments: I_consignment[]) => consignments.filter((o) => o.isCod === true)
 
     const arriveToDestinationButton = (consignments: I_consignment[], multiple: boolean) => {
+        const type:'pickup' | 'delivery' = consignments[0].type
         const cods = getCodsFromList(consignments)
         if (cods.length) {
             popup.removeModal()
@@ -38,7 +39,8 @@ const Home: FC = () => {
                 () => homeModalHook.openFailedModal('delivery', consignments, multiple)//notice
             )
         }
-        else { homeModalHook.openDeliveryModal(consignments, multiple) }
+        else if(type === 'delivery'){ homeModalHook.openDeliveryModal(consignments, multiple) }
+        else if(type === 'pickup'){ homeModalHook.openPickupModal(consignments, multiple) }   
     }
     const priorityButtonClick = async (type: I_priorityType) => {
         if (type === 'driver') {
