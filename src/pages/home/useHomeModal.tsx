@@ -9,12 +9,14 @@ import PriorityModal from "../../components/priority-modal"
 type I_openFailedModal = (type: 'delivery' | 'pickup', consignments: I_consignment[], multiple: boolean) => void
 type I_openPaymentModal = (cods: I_consignment[], onPaymentSuccess: () => void, onFailedDelivery: () => void) => void
 type I_openDeliveryModal = (consignments: I_consignment[], multiple: boolean) => void
+type I_openPickupModal = (consignments: I_consignment[], multiple: boolean) => void
 type I_openLocationsModal = (consignments: I_consignment[]) => void
 type I_openPriorityModal = (consignments: I_consignment[]) => void
 export type I_homeModalHook = {
     openFailedModal: I_openFailedModal,
     openPaymentModal: I_openPaymentModal,
     openDeliveryModal: I_openDeliveryModal,
+    openPickupModal: I_openPickupModal,
     openLocationsModal: I_openLocationsModal,
     openPriorityModal: I_openPriorityModal,
 }
@@ -53,6 +55,11 @@ export const useHomeModal = (popup: I_usePopup): I_homeModalHook => {
             )
         })
     }
+    const openPickupModal = (consignments: I_consignment[], multiple: boolean) => {
+        
+    }
+    
+
     const openLocationsModal = (consignments: I_consignment[]) => {
         popup.addModal({
             header: { title: 'زمانبندی مقصد ها' },
@@ -70,6 +77,7 @@ export const useHomeModal = (popup: I_usePopup): I_homeModalHook => {
         openFailedModal,
         openPaymentModal,
         openDeliveryModal,
+        openPickupModal,
         openLocationsModal,
         openPriorityModal,
     }
