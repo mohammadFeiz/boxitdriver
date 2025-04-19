@@ -12,6 +12,8 @@ import { MyShiftProvider, useMyShiftContext } from "./context";
 import { AICheckbox } from "aio-input";
 import { useAppContext } from "../../context";
 import { useShifts } from "./useShifts";
+import ScanRow from "../../components/scan-item";
+import ScanInput from "../../components/scan-input";
 type I_activeItems = {[id:string]:I_consignment | undefined}
 const MyShift: FC = () => {
     const {apis} = useAppContext()
@@ -163,14 +165,14 @@ const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ s
 
 const Scan: FC = () => {
     const [consignments] = useState<I_consignment[]>([
-        {id:0,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
-        {id:1,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
-        {id:2,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
-        {id:3,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
-        {id:4,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
-        {id:5,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
-        {id:6,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
-        {id:7,number:'12325234',status:"delivary_pending",shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:0,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:1,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:2,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:3,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:4,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:5,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:6,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
+        {id:7,number:'12325234',status:{id:0,text:'استتوس1'},shift:'',address:'',receiver:'احسان درودیان',description:'',type:'delivery',lat:0,lng:0},
     ])
     return (
         <div className="fs-12- flex-col- gap-12-">
@@ -179,7 +181,7 @@ const Scan: FC = () => {
                     بسته‌های زیر در این شیفت به شما اختصاص داده شده است. بارکد آن ها را با لیست زیر چک کرده و سپس در خودرو خود بارگذاری کنید.
                 </div>
                 <div className="msf">پس از بارگذاری بسته‌ها، ردیف بارکد آن را تیک بزنید.</div>
-                <ScanInput label='اسکن شماره مرسوله'/>
+                <ScanInput onChange={()=>{}}/>
                 <div className="h-1- bg-12- w-100-"></div>
                 <ScanedItems items={consignments}/>
             </div>
@@ -187,58 +189,10 @@ const Scan: FC = () => {
     )
 }
 const ScanedItems:FC<{items:I_consignment[]}> = ({items})=>{
-    return (
-        <div className="flex-col- gap-12-">
-            {items.map((item,i)=><ScanedItem key={i} item={item} index={i}/>)}
-        </div>
-    )
-}
-const ScanedItem:FC<{item:I_consignment,index:number}> = ({item,index})=>{
     const {activeItems,setActiveItem} = useMyShiftContext()
     return (
-        <div className="flex-row- brd-c-12- br-6- h-36- align-v-">
-            <div className="w-24- flex-row- align-vh-">{index + 1}</div>
-            <AICheckbox
-                className="brd-none-"
-                value={!!activeItems[item.id.toString()]}
-                onChange={()=>setActiveItem(item)}
-                text={<div className="bold-">{`${item.number}(${item.receiver})`}</div>}
-            />
+        <div className="flex-col- gap-12-">
+            {items.map((item,i)=><ScanRow key={i} consignment={item} index={i} value={!!activeItems[item.id.toString()]} onChange={()=>setActiveItem(item)}/>)}
         </div>
     )
 }
-const ScanInput: FC<{ label?: string }> = ({ label }) => {
-    const [value, setValue] = useState<string>('')
-    return (
-        <div className="flex-col- fs-12- gap-6-">
-            {!!label && <div className="">{label}</div>}
-            <div className="flex-row- align-v- brd-c-12- br-6- h-36- p-h-12-">
-                <input 
-                    type='text' value={value} placeholder="شماره مرسوله را اسکن و یا وارد کنید"
-                    onChange={(e) => setValue(e.target.value)} 
-                    className="brd-none- flex-1-"
-                />
-                <div className="flex-row- align-vh-">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5.41667 6.66669V10" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M8.47331 6.66669V10" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M11.527 6.66669V10" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M5.83333 17.5H5C3.61929 17.5 2.5 16.3807 2.5 15V14.1667" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M14.168 2.5H15.0013C16.382 2.5 17.5013 3.61929 17.5013 5V5.83333" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M2.5 5.83333V5C2.5 3.61929 3.61929 2.5 5 2.5H5.83333" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M17.5013 14.1667V15C17.5013 16.3807 16.382 17.5 15.0013 17.5H14.168" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M5.41667 12.5V14.1667" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M8.47331 12.5V14.1667" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M11.527 12.6042V14.1667" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M14.5846 12.6042V14.1667" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M14.5846 6.66669V10" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M3.33203 9.99998H16.6654" stroke="#999999" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-
-                </div>
-            </div>
-        </div>
-    )
-}
-
-

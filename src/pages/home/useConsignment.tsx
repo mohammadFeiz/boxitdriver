@@ -13,28 +13,23 @@ const useConsignment = (apis:Apis,popup:I_usePopup,setretry:any): I_consignmentH
         let newSelectedConsignments: I_consignment[] = []
         if (selected) { newSelectedConsignments = selectedConsignments.filter((o) => o.id !== consignment.id) }
         else { 
-            if(!canSelect(consignment.type)){
-                const accesptType = {delivery:'توزیع',pickup:'جمع آوری'}[selectedConsignments[0].type]
-                popup.addSnackebar({
-                    text:'انتخاب این مرسوله امکان پذیر نیست',
-                    subtext:`کارت های انتخاب از نوع ${accesptType} هستند پس فقط ${accesptType} ها قابل انتخاب هستند`,
-                    type:'warning'
-                })
-                return
-            }
+            if(!canSelect(consignment.type)){return}
             newSelectedConsignments = [...selectedConsignments, consignment] 
         }
         setSelectedConsignments(newSelectedConsignments)
     }
     const canSelect = (type:I_consignmentType)=>{
-        if(!selectedConsignments.length){return true}
-        return type === selectedConsignments[0].type
+        return type === "delivery"
     }
-    const isAllSelected = ():boolean=>!consignments.find((o)=>!isConsignmentSelected(o.id))
+    const isAllSelected = ():boolean=>{
+        const firstNotSelectedDelivery = consignments.find((o)=>!isConsignmentSelected(o.id) && o.type === 'delivery')
+        if(firstNotSelectedDelivery){return false}
+        else {return true}
+    }
     const isThereSelected = ()=>!!selectedConsignments.find((o)=>isConsignmentSelected(o.id))
     const selectAll = ()=>{
         if(isAllSelected()){setSelectedConsignments([])}
-        else {setSelectedConsignments([...consignments])}
+        else {setSelectedConsignments([...consignments.filter((o)=>o.type === 'delivery')])}
     }
     const getConsignments = async (date?:number[]) => {
         date = date || new AIODate().getToday(true);

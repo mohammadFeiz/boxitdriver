@@ -1,5 +1,5 @@
 import AIOApis from "./components/aio-apis";
-import { I_consignment, I_consignmentLocationTimes, I_consignmentType, I_failedReason, I_paymentDetail, I_shift } from "./types";
+import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_failedReason, I_listi_report_filter, I_paymentDetail, I_shift } from "./types";
 import { changePriority_mock, getConsignments_mock, getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
@@ -225,7 +225,7 @@ export class Apis extends AIOApis {
             },
             method: 'post',
             description: 'بارگزاری تصویر', loading: true,
-            url: `${this.base_url}/storage-api/indexed-objects/FREELANCER/as-file`,
+            url: `${this.base_url}/storage-api/indexed-objects/DELIVERY/as-file`,
             body: fd
         })
         return success ? response.data.response.id : false
@@ -281,17 +281,33 @@ export class Apis extends AIOApis {
         const queryString = this.getUrlQueryParam({
             driverId:p.driverId.toString(),
             signatureId,
-            description:p.description,
+            //description:p.description,
             deliveryCode:p.deliveryCode,
             nationalCode:p.nationalCode
         })
         const {response,success} = await this.request<any>({
             name:'failedDelivery',description:'اعلام تحویل موفق',method:'post',
-            url:`${this.base_url}/consignment-api/driverService/delivered/${queryString}`,
+            url:`${this.base_url}/consignment-api/driverService/delivered${queryString}`,
             body:p.consignments.map((o)=>o.number)
         })
         if(success){}
         else {}
+    }
+    successPickupByCount = async (p:{pickupId:number,count:number})=>{
+        const body:{pickupId:number,count:number} = {pickupId:p.pickupId,count:p.count}
+        const {success,response} = await this.request<any>({
+            name:'successPickupByCount',
+            description:'اعلام جمع آوری با تعداد',
+            method:'post',
+            url:`/consignment-api/driverService/pickUpAcceptCount`,
+            body,
+        })
+        if(success){
+            return true
+        }
+        else {
+            return false
+        }
     }
     getShifts = async (date: number[]) => {
         const { response, success } = await this.request<{ data: I_shift[] }>({
@@ -305,6 +321,32 @@ export class Apis extends AIOApis {
         })
         if (success) { return response.data }
         else { return false }
+    }
+    amariReport = async (p:{from?:string,to?:string})=>{
+        const res:I_amari_report = {
+            delivery:{
+                total:10,
+                pending:4,
+                success:3,
+                failed:3
+            },
+            pickup:{
+                total:20,
+                pending:10,
+                success:6,
+                failed:4
+            },
+            bag:{
+                total:5,
+                pending:2,
+                success:2,
+                failed:1
+            }
+        }
+        return res
+    }
+    listiReport = async (filter:I_listi_report_filter)=>{
+        return []
     }
     
 }
