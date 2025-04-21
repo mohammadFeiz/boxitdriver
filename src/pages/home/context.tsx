@@ -10,7 +10,6 @@ type I_HomeContext = {
     priorityButtonClick:(type:I_priorityType)=>void,
     goToNavigate:(consignment:I_consignment)=>void,
     homeModalHook:I_homeModalHook,
-    onFailed:(p:{type:'delivery' | 'pickup',consignments:I_consignment[],reason:number,image:any})=>void
 }
 const HomeContext = createContext<I_HomeContext>({} as any)
 export const HomeProvider:FC<{value:I_HomeContext,children:ReactNode}> = ({value,children})=>{

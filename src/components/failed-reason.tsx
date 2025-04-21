@@ -8,28 +8,33 @@ import { useAppContext } from "../context"
 import base64ToFile from "../utils/base64_to_file"
 
 const FailedReason: FC<{ consignments: I_consignment[], multiple: boolean, onCansel: () => void,type:'delivery' | 'pickup' }> = ({ type,consignments, multiple }) => {
-    const { popup,onFailed } = useHomeContext()
+    const { popup } = useHomeContext()
     const {apis} = useAppContext() 
     const [options, setOptions] = useState<I_failedReason[]>([])
     const fetchOptions = async () => {
         if(type === 'delivery'){
-            const res = await apis.getFailedReasonsDelivery()
+            const res = await apis.delivery_getFailedReasons()
             if(res){setOptions(res)}
         }
         else if(type === 'pickup'){
-            const res = await apis.getFailedReasonsPickup()
+            const res = await apis.pickup_getFailedReasons()
             if(res){setOptions(res)}
         }
         
     }
-    useEffect(() => {
-        fetchOptions()
-    }, [])
+    useEffect(() => {fetchOptions()}, [])
+    const onFailed = async (p: { type: 'delivery' | 'pickup', consignments: I_consignment[], failedReasonId: number, image: any }): Promise<boolean> => {
+        const {failedReasonId} = p,description = '';
+        let res;
+        if (type === 'delivery') {res = await apis.delivery_sendFailedReasons({consignments,failedReasonId,description})}
+        else {res = await apis.pickup_sendFailedReasons({consignment: consignments[0],failedReasonId,description})}
+        return !!res
+    }
     const form = useForm<I_failedDeliveryModel>({
         initData: {},
         isRequired: (data, field) => {
             if(data){}
-            if (field === 'reason') { return true }
+            if (field === 'failedReasonId') { return true }
             return false
         },
         getLayout: () => {
@@ -40,7 +45,7 @@ const FailedReason: FC<{ consignments: I_consignment[], multiple: boolean, onCan
                             label: `دلیل عدم ${type === 'delivery'?'تحویل':'جمع آوری'} مرسوله ${multiple ? 'ها' : consignments[0].number} را ذکر کنید`,
                             type: 'radio',
                             options,
-                            field: 'reason',
+                            field: 'failedReasonId',
                             option: {
                                 text:(o)=>o.text,
                                 value:(o)=>o.id,
@@ -67,7 +72,7 @@ const FailedReason: FC<{ consignments: I_consignment[], multiple: boolean, onCan
         <div className="flex-col- h-100- p-12-">
             <div className="flex-1- ofy-auto-">{form.renderLayout}</div>
             <FooterButtons
-                trueAttrs={{ disabled: form.isSubmitDisabled(), onClick: () => { onFailed({type,consignments,reason:form.data.reason,image:base64ToFile(form.data.image)}); popup.removeModal() } }}
+                trueAttrs={{ disabled: form.isSubmitDisabled(), onClick: () => { onFailed({type,consignments,failedReasonId:form.data.failedReasonId,image:base64ToFile(form.data.image)}); popup.removeModal() } }}
                 trueText="ثبت" canselAttrs={{ onClick: () => popup.removeModal() }}
             />
         </div>

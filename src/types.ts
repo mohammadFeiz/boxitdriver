@@ -84,7 +84,7 @@ export type I_shiftsHook = {
 }
 export type I_failedDeliveryModel = {
     image: string,
-    reason: number
+    failedReasonId: number
 }
 export type I_failedReason = { text: string, id: number }
 export type I_deliveryModelType = '0' | '1'

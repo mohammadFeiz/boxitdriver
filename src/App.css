@@ -82,6 +82,10 @@ body {
   border-radius: 6px;
   background: var(--color2);
   font-size: 14px;
+  display:flex;
+  align-items: center;
+  gap:12px;
+  justify-content: center;
 }
 .button-3{
   color:#4EA2FF;
@@ -101,7 +105,7 @@ body {
   border-radius:6px;
   height:48px;
   font-weight:bold;
-  padding:0 36px;
+  padding:0 12px;
   cursor: pointer;
 }
 .button-2:disabled {

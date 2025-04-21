@@ -1,7 +1,7 @@
-import { FC, useEffect, useRef, useState } from 'react'
-import { AppProvider } from './context'
-import { I_searchActionHook, I_user } from './types'
-import { Header } from './components/header'
+import { FC, useEffect, useRef, useState } from 'react';
+import { AppProvider } from './context';
+import { I_searchActionHook, I_user } from './types';
+import { Header } from './components/header';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import Home from './pages/home';
 import Suggestions from './pages/suggestions';
@@ -9,12 +9,12 @@ import MyShift from './pages/my-shift';
 import { AIOInputDefaults } from 'aio-input';
 import checkIcon from './components/checkIcon';
 import useBottomMenu from './components/useBottomMenu';
-import './App.css'
+import './App.css';
 import usePopup from 'aio-popup';
 import { useSidemenu } from './components/sidemenu';
 import { Apis } from './apis';
 import ReTry from './components/re-try';
-import { Storage } from 'aio-utils';
+import { hasAuthParams, useAuth } from 'react-oidc-context';
 // function App() {
 //   const auth = useAuth();
 
@@ -38,27 +38,38 @@ import { Storage } from 'aio-utils';
 //   );
 // }
 // export default App
-const App:FC = ()=>{
-  const storageRef = useRef(new Storage('drivertoken'))
-  const storage = storageRef.current
-  const [token,setToken] = useState<string | undefined>(getToken)
-  function getToken(){return storage.load('token')}
-  const logout = ()=>{
-    const res = window.prompt('inter token');
-    if(typeof res === 'string'){
-      storage.save('token',res);
-      
-    }
-    window.location.reload()
+const App: FC = () => {
+  const auth = useAuth()
+  const navigate = useNavigate()
+  function logout() {
+    window.location.href = import.meta.env.VITE_LOGOUT as string
+    auth.removeUser()
+    setTimeout(() => {
+      window.location.href = import.meta.env.VITE_LOGOUT as string
+    }, 200)
   }
-  useEffect(()=>{
-    if(!token){logout()}
-  },[])
-  if(token){return <APP token={token}/>}
-  return null
-  
+  useEffect(() => {
+    if (
+      !hasAuthParams() &&
+      !auth.isAuthenticated &&
+      !auth.activeNavigator &&
+      !auth.isLoading
+    ) {
+      auth.signinRedirect();
+    }
+    else if (auth?.user?.access_token) {
+      navigate('/')
+      localStorage.setItem("token", auth?.user?.access_token);
+    }
+  }, [auth]);
+  return (
+    <Routes>
+      <Route path="/Login" element={<div></div>} />
+      <Route path='/*' element={<APP logout={logout}/>} />
+    </Routes>
+  )
 }
-const APP: FC<{token:string}> = ({token}) => {
+const APP: FC<{logout:any}> = ({logout}) => {
   // const storageRef = useRef(new Storage('drivertoken'))
   // const storage = storageRef.current
   // const tokenRef = useRef(storage.load('token'));
@@ -76,6 +87,7 @@ const APP: FC<{token:string}> = ({token}) => {
     hub: { id: 1, text: 'هاب تهران' },
     isActive: true
   }
+  const token = localStorage.getItem('token') as string
   const apis = new Apis({ token, base_url, driverId: user.id })
   const successMessage = (text: string, subtext?: string) => {
     popup.addSnackebar({
@@ -86,7 +98,7 @@ const APP: FC<{token:string}> = ({token}) => {
   const sidemenuHook = useSidemenu({ popup })
   const searchAction = useSearchAction()
   return (
-    <AppProvider value={{ user, searchAction, bottomMenuHook, sidemenuHook, apis, successMessage, popup, setretry }}>
+    <AppProvider value={{ user, searchAction, bottomMenuHook, sidemenuHook, apis, successMessage, popup, setretry,logout }}>
       <div className="app">
         <Header />
         <Body />
@@ -116,5 +128,4 @@ const useSearchAction = (): I_searchActionHook => {
   const click = () => ref.current()
   return { set, click }
 }
-
 export default App

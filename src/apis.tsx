@@ -10,14 +10,15 @@ type I_consignmentServer = {
     description: string,
     lat: number,
     longitude: number,
-    hasPostPaid:boolean,
-    hasAuthentication:boolean,
-    hasCostOfGoods:boolean,
-    pickUpNumber:any,
-    selectShift:{text:string,id:number}
+    hasPostPaid: boolean,
+    hasAuthentication: boolean,
+    hasCostOfGoods: boolean,
+    pickUpNumber: any,
+    selectShift: { text: string, id: number }
 }
 export class Apis extends AIOApis {
     base_url: string;
+    offline: boolean = false;
     driverId: number;
     mock: boolean = true;
     mockDelay: number = 2000;
@@ -26,7 +27,7 @@ export class Apis extends AIOApis {
             id: 'boxitdriver',
             token: p.token, lang: 'fa',
             handleErrorMessage: (err) => {
-                if(err.response?.status === 401){return ''}
+                if (err.response?.status === 401) { return '' }
                 return 'error'
             }
         })
@@ -34,20 +35,20 @@ export class Apis extends AIOApis {
         this.driverId = p.driverId;
     }
     consignmentServerToClient = (obj: I_consignmentServer) => {
-        const type:I_consignmentType = obj.selectDriverCardType.id === 0 ? 'pickup' : 'delivery'
+        const type: I_consignmentType = obj.selectDriverCardType.id === 0 ? 'pickup' : 'delivery'
         const res: I_consignment = {
             type,
             status: obj.selectStatus,
-            number: obj.cprNumber,
-            shift: obj.selectShift.text,
+            number: type === "delivery" ? obj.cprNumber : obj.pickUpNumber?.text,
+            shift: obj.selectShift?.text,
             address: obj.receiverAddress,
-            id: type === "delivery"?obj.cprNumber:obj.pickUpNumber,
+            id: type === "delivery" ? obj.cprNumber : obj.pickUpNumber?.text,
             receiver: obj.receiver,
             description: typeof obj.description === 'string' ? obj.description : '',
             lat: obj.lat, lng: obj.longitude,
-            isCod:obj.hasPostPaid === true,
-            tag_ehrazeHoviat:obj.hasAuthentication === true,
-            tag_hazineYeKala:obj.hasCostOfGoods === true
+            isCod: obj.hasPostPaid === true,
+            tag_ehrazeHoviat: obj.hasAuthentication === true,
+            tag_hazineYeKala: obj.hasCostOfGoods === true
         }
         return res
     }
@@ -72,9 +73,9 @@ export class Apis extends AIOApis {
             //mock: this.mock ? getConsignments_mock : undefined,
             //mockDelay: this.mockDelay
         })
-        if (success) {return response.data.response.map((o) => this.consignmentServerToClient(o))}
-        else { 
-            return false 
+        if (success) { return response.data.response.map((o) => this.consignmentServerToClient(o)) }
+        else {
+            return false
         }
 
     }
@@ -93,35 +94,35 @@ export class Apis extends AIOApis {
 
     }
     getCODsAmounts = async (cods: I_consignment[]) => {
-        const body:string[] = cods.map((o)=>o.number)
-        const {response,success} = await this.request<any>({
-            name:'getCODsAmounts',
-            description:'دریافت اطلاعات پرداخت',
-            method:'post',
-            url:`${this.base_url}/consignment-api/driverService/driverPaymentInformation`,
+        const body: string[] = cods.map((o) => o.number)
+        const { response, success } = await this.request<any>({
+            name: 'getCODsAmounts',
+            description: 'دریافت اطلاعات پرداخت',
+            method: 'post',
+            url: `${this.base_url}/consignment-api/driverService/driverPaymentInformation`,
             body
         })
-        if(success){
+        if (success) {
             const send = response.data.response.sentCost;
             const product = response.data.response.costOfGoods;
             const total = send + product;
-            const res:I_paymentDetail = {send,product,total}
+            const res: I_paymentDetail = { send, product, total }
             return res
         }
         else {
             return false
         }
     }
-    codsPayment = async (consignments:I_consignment[],amount: number) => {
-        const {success,response} = await this.request<any>({
-            name:'codsPayment',
-            description:'پرداخت پس کرایه ها',
-            method:'post',
-            url:`${this.base_url}/consignment-api/driverService/driverPayment/${amount}`, 
-            body:consignments.map((o)=>o.number)
+    codsPayment = async (consignments: I_consignment[], amount: number) => {
+        const { success, response } = await this.request<any>({
+            name: 'codsPayment',
+            description: 'پرداخت پس کرایه ها',
+            method: 'post',
+            url: `${this.base_url}/consignment-api/driverService/driverPayment/${amount}`,
+            body: consignments.map((o) => o.number)
         })
-        if(success){return true}
-        else {return false}
+        if (success) { return true }
+        else { return false }
     }
     getWeyPoints = async (consignments: I_consignment[]): Promise<string | null> => {
         const res: string[] = consignments.map((o) => `${o.lng},${o.lat}`)
@@ -162,14 +163,14 @@ export class Apis extends AIOApis {
 
     }
     changePriority = async (consignments: I_consignment[]) => {
-        const body = consignments.map((o)=>{
+        const body = consignments.map((o) => {
             return {
-                type:o.type === "delivery"?"DELIVERY":"PICKUP",
-                cprNumber:o.number
+                type: o.type === "delivery" ? "DELIVERY" : "PICKUP",
+                cprNumber: o.number
             }
         })
         const { success } = await this.request({
-            name: 'changePriority',method: 'post',body,description: 'ارسال اولویت بندی به سرور',
+            name: 'changePriority', method: 'post', body, description: 'ارسال اولویت بندی به سرور',
             url: `${this.base_url}/consignment-api/driverService/changePriority`,
             //mock: this.mock ? () => changePriority_mock(consignments) : undefined,
             // mockDelay: this.mockDelay
@@ -177,31 +178,132 @@ export class Apis extends AIOApis {
         if (success) { return true }
         else { return false }
     }
-    getFailedReasonsDelivery = async ()=>{
-        const {success,response} = await this.request<{data:{name:string,id:number}[]}>({
-            name: 'getFailedReasonsDelivery',description: 'دریافت دلایل ناموفق',method: 'get',
+    pickup_getFailedReasons = async () => {
+        const { success, response } = await this.request<{ data: { payload: { name: string, id: number }[] } }>({
+            name: 'pickup_getFailedReasons', description: 'دریافت دلایل ناموفق', method: 'get',
+            url: `${this.base_url}/consignment-api/failedReasons/pickUpFailedReasonsList`,
+            // mock: this.mock ? () => ({ data: [], status: 200 }) : undefined,
+            // mockDelay: this.mockDelay
+        })
+        if (success) {
+            const list = response.data.payload;
+            const res: I_failedReason[] = list.map((o) => ({ text: o.name, id: o.id }))
+            return res
+        }
+        else { return false }
+    }
+    pickup_success = async (p: { pickupId: number, count: number }) => {
+        const body: { pickUpNumber: number, count: number } = { pickUpNumber: p.pickupId, count: p.count }
+        const { success, response } = await this.request<any>({
+            name: 'pickup_success',
+            description: 'اعلام جمع آوری با تعداد',
+            method: 'post',
+            url: `${this.base_url}/consignment-api/driverService/pickUpAcceptCount`,
+            body,
+        })
+        if (success) {
+            debugger
+            return true
+        }
+        else {
+            debugger
+            return false
+        }
+    }
+    pickup_sendFailedReasons = async (p: { file?: any, failedReasonId: number, description: string, consignment: I_consignment }) => {
+        let imageId:any;
+        if(p.file){
+            const res = await this.setImage(p.file);
+            if(res){imageId = res}
+            else {
+                alert('ارسال تصویر نا موفق بود')
+                return false
+            }
+        }
+        const body = {
+            failedReasonId: p.failedReasonId,
+            cprNumberList: [p.consignment.number],
+            driverId: this.driverId,
+            description: "",
+            imageId
+        }
+        const { response, success } = await this.request<any>({
+            name: '',
+            description: '',
+            method: 'post',
+            url: `${this.base_url}/consignment-api/driverService/driverPickUpFailedReason`,
+            body
+        })
+        if (success) {
+            debugger
+            return true
+        }
+        else {
+            debugger
+            return false
+        }
+    }
+    delivery_getFailedReasons = async () => {
+        const { success, response } = await this.request<{ data: { name: string, id: number }[] }>({
+            name: 'delivery_getFailedReasons', description: 'دریافت دلایل ناموفق', method: 'get',
             url: `${this.base_url}/consignment-api/v2/driver/delivery/deliveryFailedReasonsList`,
             // mock: this.mock ? () => ({ data: [], status: 200 }) : undefined,
             // mockDelay: this.mockDelay
         })
-        if(success){
-            const res:I_failedReason[] =  response.data.map((o)=>({text:o.name,id:o.id}))
+        if (success) {
+            const res: I_failedReason[] = response.data.map((o) => ({ text: o.name, id: o.id }))
             return res
         }
-        else {return false}
+        else { return false }
     }
-    getFailedReasonsPickup = async ()=>{
-        const {success,response} = await this.request<{data:{name:string,id:number}[]}>({
-            name: 'getFailedReasonsDelivery',description: 'دریافت دلایل ناموفق',method: 'get',
-            url: `${this.base_url}/consignment-api/driverService/driverPickUpFailedReason`,
-            // mock: this.mock ? () => ({ data: [], status: 200 }) : undefined,
-            // mockDelay: this.mockDelay
-        })
-        if(success){
-            const res:I_failedReason[] =  response.data.map((o)=>({text:o.name,id:o.id}))
-            return res
+    delivery_sendFailedReasons = async (p: { file?: any, failedReasonId: number, description: string, consignments: I_consignment[] }) => {
+        let imageId: any;
+        if (p.file) {
+            const res = await this.setImage(p.file);
+            if (res) { imageId = res }
+            else {
+                alert('ارسال تصویر نا موفق بود')
+                return false
+            }
         }
-        else {return false}
+        const queryString = this.getUrlQueryParam({
+            driverId: this.driverId.toString(),
+            failedReasonId: p.failedReasonId.toString(),
+            imageId,
+            description: p.description
+        })
+        const { response, success } = await this.request<any>({
+            name: 'delivery_sendFailedReasons', description: 'اعلام علل تحویل نا موفق', method: 'post',
+            url: `${this.base_url}/consignment-api/driverService/deliveryFailed/${queryString}`,
+            body: p.consignments.map((o) => o.number)
+        })
+        if (success) { }
+        else { }
+    }
+
+    delivery_success = async (p: { signature?: any, deliveryCode?: string, nationalCode?: string, description: string, consignments: I_consignment[], driverId: number, image?: any }) => {
+        let signatureId: any;
+        if (p.signature) {
+            const res = await this.setImage(p.signature);
+            if (res) { signatureId = res }
+            else {
+                alert('ارسال امضا نا موفق بود')
+                return false
+            }
+        }
+        const queryString = this.getUrlQueryParam({
+            driverId: p.driverId.toString(),
+            signatureId,
+            //description:p.description,
+            deliveryCode: p.deliveryCode,
+            nationalCode: p.nationalCode
+        })
+        const { response, success } = await this.request<any>({
+            name: 'delivery_success', description: 'اعلام تحویل موفق', method: 'post',
+            url: `${this.base_url}/consignment-api/driverService/delivered${queryString}`,
+            body: p.consignments.map((o) => o.number)
+        })
+        return !!success
     }
     base64ToFile(base64: any, fileName = 'upload.bin') {
         const arr = base64.split(',');
@@ -240,75 +342,6 @@ export class Apis extends AIOApis {
         if (success) { return response.data }
         else { return false }
     }
-    failedDelivery = async (p:{driverId:number,file?:any,failedReasonId:number,description:string,consignments:I_consignment[]})=>{
-        let imageId:any;
-        if(p.file){
-            const res = await this.setImage(p.file);
-            if(res){imageId = res}
-            else {
-                alert('ارسال تصویر نا موفق بود')
-                return false
-            }
-        }
-        const queryString = this.getUrlQueryParam({
-            driverId:p.driverId.toString(),
-            failedReasonId:p.failedReasonId.toString(),
-            imageId,
-            description:p.description
-        })
-        const {response,success} = await this.request<any>({
-            name:'failedDelivery',description:'اعلام علل تحویل نا موفق',method:'post',
-            url:`${this.base_url}/consignment-api/driverService/deliveryFailed/${queryString}`,
-            body:p.consignments.map((o)=>o.number)
-        })
-        if(success){}
-        else {}
-    }
-    failedPickup = async (p:{driverId:number,file?:any,failedReasonId:number,description:string,consignments:I_consignment[]}):Promise<boolean>=>{
-        return true
-    }
-    successDelivery = async (p:{signature?:any,deliveryCode?:string,nationalCode?:string,description:string,consignments:I_consignment[],driverId:number,image?:any})=>{
-        debugger
-        let signatureId:any;
-        if(p.signature){
-            const res = await this.setImage(p.signature);
-            if(res){signatureId = res}
-            else {
-                alert('ارسال امضا نا موفق بود')
-                return false
-            }
-        }
-        const queryString = this.getUrlQueryParam({
-            driverId:p.driverId.toString(),
-            signatureId,
-            //description:p.description,
-            deliveryCode:p.deliveryCode,
-            nationalCode:p.nationalCode
-        })
-        const {response,success} = await this.request<any>({
-            name:'failedDelivery',description:'اعلام تحویل موفق',method:'post',
-            url:`${this.base_url}/consignment-api/driverService/delivered${queryString}`,
-            body:p.consignments.map((o)=>o.number)
-        })
-        if(success){}
-        else {}
-    }
-    successPickupByCount = async (p:{pickupId:number,count:number})=>{
-        const body:{pickupId:number,count:number} = {pickupId:p.pickupId,count:p.count}
-        const {success,response} = await this.request<any>({
-            name:'successPickupByCount',
-            description:'اعلام جمع آوری با تعداد',
-            method:'post',
-            url:`/consignment-api/driverService/pickUpAcceptCount`,
-            body,
-        })
-        if(success){
-            return true
-        }
-        else {
-            return false
-        }
-    }
     getShifts = async (date: number[]) => {
         const { response, success } = await this.request<{ data: I_shift[] }>({
             name: '',
@@ -322,33 +355,33 @@ export class Apis extends AIOApis {
         if (success) { return response.data }
         else { return false }
     }
-    amariReport = async (p:{from?:string,to?:string})=>{
-        const res:I_amari_report = {
-            delivery:{
-                total:10,
-                pending:4,
-                success:3,
-                failed:3
+    amariReport = async (p: { from?: string, to?: string }) => {
+        const res: I_amari_report = {
+            delivery: {
+                total: 10,
+                pending: 4,
+                success: 3,
+                failed: 3
             },
-            pickup:{
-                total:20,
-                pending:10,
-                success:6,
-                failed:4
+            pickup: {
+                total: 20,
+                pending: 10,
+                success: 6,
+                failed: 4
             },
-            bag:{
-                total:5,
-                pending:2,
-                success:2,
-                failed:1
+            bag: {
+                total: 5,
+                pending: 2,
+                success: 2,
+                failed: 1
             }
         }
         return res
     }
-    listiReport = async (filter:I_listi_report_filter)=>{
+    listiReport = async (filter: I_listi_report_filter) => {
         return []
     }
-    
+
 }
 
 

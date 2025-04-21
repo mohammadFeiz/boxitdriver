@@ -10,7 +10,7 @@ import PickupModal from "../../components/pickup-modal"
 type I_openFailedModal = (type: 'delivery' | 'pickup', consignments: I_consignment[], multiple: boolean) => void
 type I_openPaymentModal = (cods: I_consignment[], onPaymentSuccess: () => void, onFailedDelivery: () => void) => void
 type I_openDeliveryModal = (consignments: I_consignment[], multiple: boolean) => void
-type I_openPickupModal = (consignments: I_consignment[], multiple: boolean) => void
+type I_openPickupModal = (consignment: I_consignment) => void
 type I_openLocationsModal = (consignments: I_consignment[]) => void
 type I_openPriorityModal = (consignments: I_consignment[]) => void
 export type I_homeModalHook = {
@@ -56,15 +56,15 @@ export const useHomeModal = (popup: I_usePopup): I_homeModalHook => {
             )
         })
     }
-    const openPickupModal = (consignments: I_consignment[], multiple: boolean) => {
+    const openPickupModal = (consignment: I_consignment) => {
         popup.addModal({
             position: 'bottom',
             setAttrs: (key) => {
-                if (key === "modal") { return { className: 'bottom-modal' } }
+                if (key === "modal") { return { className: 'bottom-modal bottom-modal-height-fit-content' } }
                 if (key === "backdrop") { return { className: 'dark-backdrop' } }
             },
             header: { title: 'جمع آوری مرسوله' },
-            body: (<PickupModal consignments={consignments} multiple={multiple}/>)
+            body: (<PickupModal consignment={consignment} onClose={()=>popup.removeModal()}/>)
         })
     }
     

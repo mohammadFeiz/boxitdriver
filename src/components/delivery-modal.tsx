@@ -130,7 +130,7 @@ const DeliveryModal: FC<{ consignments: I_consignment[], multiple: boolean, onFa
     })
     const submit = async () => {
         const deliveryCode = form.data.code
-        const res = await apis.successDelivery({
+        const res = await apis.delivery_success({
             driverId: user.id,
             consignments,
             deliveryCode,

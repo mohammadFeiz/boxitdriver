@@ -8,7 +8,7 @@ import { Splitter } from "../../components/splitter";
 export const HomeCard: FC<{ consignment: I_consignment, index: number }> = ({ consignment, index }) => {
     const [mounted, setMounted] = useState<boolean>(false)
     useEffect(() => {
-        setTimeout(() => setMounted(true), index * 120)
+        setTimeout(() => setMounted(true), index * 20)
     }, [])
     return (
         <div className={`brd-2 p-12- br-16- height-card-${mounted ? ' mounted-' : ''}`}>

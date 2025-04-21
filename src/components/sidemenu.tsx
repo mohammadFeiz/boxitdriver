@@ -29,7 +29,7 @@ import Icon from "@mdi/react";
 //     render?: () => React.ReactNode;
 // }
 const AppSide: FC = () => {
-    const { user,popup } = useAppContext()
+    const { user,popup,logout } = useAppContext()
     return (
         <Sidenav
             header={() => {
@@ -47,8 +47,10 @@ const AppSide: FC = () => {
                     </div>
                 )
             }}
-            onChange={() => {
-
+            onChange={(v) => {
+                if(v.value === 'logout'){
+                    logout()
+                }
             }}
             items={[
                 {

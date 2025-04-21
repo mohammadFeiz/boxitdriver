@@ -11,7 +11,8 @@ export type I_AppContext = {
     apis:Apis,
     successMessage:(text:string,subtext?:string)=>void,
     popup:I_usePopup,
-    setretry:(v:{ onClick: () => void, text: string } | false)=>void
+    setretry:(v:{ onClick: () => void, text: string } | false)=>void,
+    logout:any
 }
 const AppContext = createContext<I_AppContext>({} as any)
 export const AppProvider:FC<{value:I_AppContext,children:ReactNode}> = ({value,children})=>{

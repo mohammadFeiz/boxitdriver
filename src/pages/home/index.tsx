@@ -40,7 +40,7 @@ const Home: FC = () => {
             )
         }
         else if(type === 'delivery'){ homeModalHook.openDeliveryModal(consignments, multiple) }
-        else if(type === 'pickup'){ homeModalHook.openPickupModal(consignments, multiple) }   
+        else if(type === 'pickup'){ homeModalHook.openPickupModal(consignments[0]) }   
     }
     const priorityButtonClick = async (type: I_priorityType) => {
         if (type === 'driver') {
@@ -60,30 +60,8 @@ const Home: FC = () => {
         if (multiple) { homeModalHook.openLocationsModal(consignments) }
         else { goToNavigate(consignments[0]) }
     }
-    const onFailed = async (p: { type: 'delivery' | 'pickup', consignments: I_consignment[], reason: number, image: any }): Promise<boolean> => {
-        if (p.type === 'delivery') {
-            const res = await apis.failedDelivery({
-                driverId: user.id,
-                consignments: p.consignments,
-                failedReasonId: p.reason,
-                description: ''
-            })
-            if (res) { return true }
-            else { return false }
-        }
-        else {
-            const res = await apis.failedPickup({
-                driverId: user.id,
-                consignments: p.consignments,
-                failedReasonId: p.reason,
-                description: ''
-            })
-            if (res) { return true }
-            else { return false }
-        }
-    }
     return (
-        <HomeProvider value={{ popup, arriveToDestinationButton, consignmentHook, navigationButtonClick, goToNavigate, priorityButtonClick, homeModalHook, onFailed }}>
+        <HomeProvider value={{ popup, arriveToDestinationButton, consignmentHook, navigationButtonClick, goToNavigate, priorityButtonClick, homeModalHook }}>
             <div className="app-page">
                 <div className="flex-col-">
                     {timelineHook.render()}
