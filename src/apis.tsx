@@ -1,5 +1,5 @@
 import AIOApis from "./components/aio-apis";
-import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_failedReason, I_listi_report_filter, I_paymentDetail, I_shift } from "./types";
+import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_failedReason, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
 import { getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
@@ -19,12 +19,13 @@ type I_consignmentServer = {
 export class Apis extends AIOApis {
     base_url: string;
     offline: boolean = false;
-    driverId: number;
+    driverId: number = 0;
     mock: boolean = true;
     mockDelay: number = 2000;
-    constructor(p: { token: string, base_url: string, driverId: number,logout:()=>void }) {
+    constructor(p: { token: string, base_url: string, logout:()=>void }) {
         super({
             id: 'boxitdriver',
+            base_url:p.base_url,
             defaults:{token:p.token,messageTime:30},
             lang: 'fa',
             handleErrorMessage: (err) => {
@@ -34,8 +35,8 @@ export class Apis extends AIOApis {
             }
         })
         this.base_url = p.base_url;
-        this.driverId = p.driverId;
     }
+    setDriverId = (driverId:number)=>this.driverId = driverId;
     consignmentServerToClient = (obj: I_consignmentServer) => {
         const type: I_consignmentType = obj.selectDriverCardType.id === 0 ? 'pickup' : 'delivery'
         const res: I_consignment = {
@@ -53,6 +54,49 @@ export class Apis extends AIOApis {
             tag_hazineYeKala: obj.hasCostOfGoods === true
         }
         return res
+    }
+    fetchUser = async()=>{
+        const {success,response} = await this.request<{
+            data:{
+                driverInfoDto:{
+                    driver:{
+                        name:string,
+                        id:number
+                    },
+                    selectHub:{
+                        id:number,
+                        text:string
+                    }
+                    
+                },
+                userinfo:{
+                    text:string,
+                    id:number
+                }
+            }
+        }>({
+            name:'',
+            description:'دریافت اطلاعات کاربر',
+            method:'post',
+            url:`/resource-api/permission/fetchPermissionsByUserName`,
+            body:{in:''}
+        })
+        if(success){
+            const user:I_user = {
+                username:response.data.userinfo.text,
+                id:response.data.driverInfoDto.driver.id,
+                name:response.data.driverInfoDto.driver.name,
+                isActive:true,
+                hub:{
+                    id:response.data.driverInfoDto.selectHub.id,
+                    text:response.data.driverInfoDto.selectHub.text
+                }
+            }
+            return user
+        }
+        else {
+            return false
+        }
     }
     getConsignments = async (date: number[]) => {
         const year = '1402'

@@ -50,9 +50,9 @@ const AuthRouter: FC = () => {
     }, 200)
   }
   useEffect(() => {
-    if(auth.isLoading){return}
+    if (auth.isLoading) { return }
     const isAuth = auth.isAuthenticated
-    if(!isAuth) {
+    if (!isAuth) {
       auth.signinRedirect();
     }
     else if (auth?.user?.access_token) {
@@ -63,39 +63,59 @@ const AuthRouter: FC = () => {
   return (
     <Routes>
       <Route path="/Login" element={<div></div>} />
-      <Route path='/*' element={<AuthWrapper logout={logout} auth={auth}/>} />
+      <Route path='/*' element={<TokenWrapper logout={logout} auth={auth} />} />
     </Routes>
   )
 }
 export default AuthRouter
-const AuthWrapper:FC<{auth:any,logout:any}> = ({auth,logout})=>{
-  if(!auth.isAuthenticated){return null}
-  else {
-    const token = auth?.user?.access_token;
-    localStorage.setItem("token", token);
-  }
-  return <App logout={logout}/>
+const TokenWrapper: FC<{ auth: any, logout: any }> = ({ auth, logout }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
+  const [token,setToken] = useState<string>()
+  useEffect(() => {
+    const newIsAuthenticated = !!auth.isAuthenticated
+    if (newIsAuthenticated) {
+      const token = auth?.user?.access_token;
+      if(token){setToken(token)}
+    }
+    else {setToken('')}
+    setIsAuthenticated(newIsAuthenticated)
+  }, [auth.isAuthenticated])
+  if (!isAuthenticated || !token) { return null }
+  return <UserWrapper logout={logout} token={token}/>
 }
-const App: FC<{logout:any}> = ({logout}) => {
+const UserWrapper:FC<{token:string,logout:()=>void}> = ({token,logout})=>{
+  const base_url = import.meta.env.VITE_BASE_URL;
+  const apis = CreateInstance(new Apis({ token, base_url,  logout }))
+  const [user,setUser] = useState<I_user | false>(false)
+  const fetchUser = async ()=>{
+    const res = await apis.fetchUser();
+    if(res){
+      debugger
+      apis.setDriverId(res.id)
+      setUser(res)
+    }
+  }
+  useEffect(()=>{fetchUser()},[])
+  if(!user){return null}
+  return <App logout={logout} user={user} apis={apis}/>
+}
+const App: FC<{ logout: any,user:I_user,apis:Apis }> = ({ logout,user,apis }) => {
   // const storageRef = useRef(new Storage('drivertoken'))
   // const storage = storageRef.current
   // const tokenRef = useRef(storage.load('token'));
   // const token = tokenRef.current
-  const base_url = import.meta.env.VITE_BASE_URL;
   const [retry, setretry] = useState<{ onClick: () => void, text: string } | false>(false)
   AIOInputDefaults.set({
     checkIcon: checkIcon
   })
   const popup = usePopup()
-  const user: I_user = {
-    username: 'ali_ansari',
-    id: 788,
-    name: 'علی انصاری',
-    hub: { id: 1, text: 'هاب تهران' },
-    isActive: true
-  }
-  const token = localStorage.getItem('token') as string
-  const apis = CreateInstance(new Apis({ token, base_url, driverId: user.id,logout }))
+  // const user: I_user = {
+  //   username: 'ali_ansari',
+  //   id: 788,
+  //   name: 'علی انصاری',
+  //   hub: { id: 1, text: 'هاب تهران' },
+  //   isActive: true
+  // }
   const successMessage = (text: string, subtext?: string) => {
     popup.addSnackebar({
       text, subtext, type: 'success'
@@ -105,7 +125,7 @@ const App: FC<{logout:any}> = ({logout}) => {
   const sidemenuHook = useSidemenu({ popup })
   const searchAction = useSearchAction()
   return (
-    <AppProvider value={{ user, searchAction, bottomMenuHook, sidemenuHook, apis, successMessage, popup, setretry,logout }}>
+    <AppProvider value={{ user, searchAction, bottomMenuHook, sidemenuHook, apis, successMessage, popup, setretry, logout }}>
       <div className="app">
         <Header />
         <Body />
