@@ -7,7 +7,7 @@ import { useForm } from "aio-input"
 import { useAppContext } from "../context"
 import base64ToFile from "../utils/base64_to_file"
 
-const FailedReason: FC<{ consignments: I_consignment[], multiple: boolean, onCansel: () => void,type:'delivery' | 'pickup' }> = ({ type,consignments, multiple }) => {
+const FailedReasonModal: FC<{ consignments: I_consignment[], multiple: boolean, onClose: () => void,type:'delivery' | 'pickup' }> = ({ type,consignments, multiple,onClose }) => {
     const { popup } = useHomeContext()
     const {apis} = useAppContext() 
     const [options, setOptions] = useState<I_failedReason[]>([])
@@ -24,10 +24,14 @@ const FailedReason: FC<{ consignments: I_consignment[], multiple: boolean, onCan
     }
     useEffect(() => {fetchOptions()}, [])
     const onFailed = async (p: { type: 'delivery' | 'pickup', consignments: I_consignment[], failedReasonId: number, image: any }): Promise<boolean> => {
-        const {failedReasonId} = p,description = '';
+        const {failedReasonId,image} = p;
+        const description = '';
         let res;
-        if (type === 'delivery') {res = await apis.delivery_sendFailedReasons({consignments,failedReasonId,description})}
-        else {res = await apis.pickup_sendFailedReasons({consignment: consignments[0],failedReasonId,description})}
+        if (type === 'delivery') {res = await apis.delivery_failed({consignments,failedReasonId,description})}
+        else {
+            const consignment = consignments[0];
+            res = await apis.pickup_failed({consignment,failedReasonId,description,image})
+        }
         return !!res
     }
     const form = useForm<I_failedDeliveryModel>({
@@ -72,10 +76,20 @@ const FailedReason: FC<{ consignments: I_consignment[], multiple: boolean, onCan
         <div className="flex-col- h-100- p-12-">
             <div className="flex-1- ofy-auto-">{form.renderLayout}</div>
             <FooterButtons
-                trueAttrs={{ disabled: form.isSubmitDisabled(), onClick: () => { onFailed({type,consignments,failedReasonId:form.data.failedReasonId,image:base64ToFile(form.data.image)}); popup.removeModal() } }}
-                trueText="ثبت" canselAttrs={{ onClick: () => popup.removeModal() }}
+                trueAttrs={{ 
+                    disabled: form.isSubmitDisabled(), 
+                    onClick: () => { 
+                        debugger
+                        const image = form.data.image?base64ToFile(form.data.image):undefined
+                        const failedReasonId = form.data.failedReasonId;
+                        onFailed({type,consignments,failedReasonId,image}); 
+                        popup.removeModal() 
+                    } 
+                }}
+                trueText="ثبت" 
+                canselAttrs={{ onClick: onClose }}
             />
         </div>
     )
 }
-export default FailedReason
+export default FailedReasonModal

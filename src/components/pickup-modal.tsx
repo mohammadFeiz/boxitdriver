@@ -25,10 +25,7 @@ const PickupModal: FC<{ consignment: I_consignment,onClose:()=>void}> = ({ consi
     }
     const success = async ()=>{
         const res = await apis.pickup_success({pickupId:consignment.number as any,count})
-        if(res){
-            consignmentHook.getConsignments();
-            onClose()
-        }
+        if(res){consignmentHook.getConsignments(); onClose()}
     }
     const failed = ()=>{
         homeModalHook.openFailedModal('pickup', [consignment], false)

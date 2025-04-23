@@ -1,6 +1,6 @@
 import { I_usePopup } from "aio-popup"
 import { I_consignment } from "../../types"
-import FailedReason from "../../components/failed-reason"
+import FailedReasonModal from "../../components/failed-reason-modal"
 import CodePaymentModal from "../../components/cod-payment-modal"
 import DeliveryModal from "../../components/delivery-modal"
 import LocationsModal from "../../components/location-modal"
@@ -25,7 +25,7 @@ export const useHomeModal = (popup: I_usePopup): I_homeModalHook => {
     const openFailedModal = (type: 'delivery' | 'pickup', consignments: I_consignment[], multiple: boolean) => {
         popup.addModal({
             header: { title: `عدم ${type === 'delivery'?'تحویل':'جمع آوری'}` },
-            body: (<FailedReason consignments={consignments} multiple={multiple} type={type} onCansel={() => popup.removeModal()} />)
+            body: (<FailedReasonModal consignments={consignments} multiple={multiple} type={type} onClose={() => popup.removeModal()} />)
         })
     }
     const openPaymentModal = (cods: I_consignment[], onPaymentSuccess: () => void, onFailedDelivery: () => void) => {

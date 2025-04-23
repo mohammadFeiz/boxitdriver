@@ -15,6 +15,7 @@ import { useSidemenu } from './components/sidemenu';
 import { Apis } from './apis';
 import ReTry from './components/re-try';
 import { hasAuthParams, useAuth } from 'react-oidc-context';
+import { CreateInstance } from 'aio-apis';
 // function App() {
 //   const auth = useAuth();
 
@@ -38,7 +39,7 @@ import { hasAuthParams, useAuth } from 'react-oidc-context';
 //   );
 // }
 // export default App
-const App: FC = () => {
+const AuthRouter: FC = () => {
   const auth = useAuth()
   const navigate = useNavigate()
   function logout() {
@@ -49,12 +50,9 @@ const App: FC = () => {
     }, 200)
   }
   useEffect(() => {
-    if (
-      !hasAuthParams() &&
-      !auth.isAuthenticated &&
-      !auth.activeNavigator &&
-      !auth.isLoading
-    ) {
+    if(auth.isLoading){return}
+    const isAuth = auth.isAuthenticated
+    if(!isAuth) {
       auth.signinRedirect();
     }
     else if (auth?.user?.access_token) {
@@ -65,11 +63,20 @@ const App: FC = () => {
   return (
     <Routes>
       <Route path="/Login" element={<div></div>} />
-      <Route path='/*' element={<APP logout={logout}/>} />
+      <Route path='/*' element={<AuthWrapper logout={logout} auth={auth}/>} />
     </Routes>
   )
 }
-const APP: FC<{logout:any}> = ({logout}) => {
+export default AuthRouter
+const AuthWrapper:FC<{auth:any,logout:any}> = ({auth,logout})=>{
+  if(!auth.isAuthenticated){return null}
+  else {
+    const token = auth?.user?.access_token;
+    localStorage.setItem("token", token);
+  }
+  return <App logout={logout}/>
+}
+const App: FC<{logout:any}> = ({logout}) => {
   // const storageRef = useRef(new Storage('drivertoken'))
   // const storage = storageRef.current
   // const tokenRef = useRef(storage.load('token'));
@@ -88,7 +95,7 @@ const APP: FC<{logout:any}> = ({logout}) => {
     isActive: true
   }
   const token = localStorage.getItem('token') as string
-  const apis = new Apis({ token, base_url, driverId: user.id })
+  const apis = CreateInstance(new Apis({ token, base_url, driverId: user.id,logout }))
   const successMessage = (text: string, subtext?: string) => {
     popup.addSnackebar({
       text, subtext, type: 'success'
@@ -128,4 +135,3 @@ const useSearchAction = (): I_searchActionHook => {
   const click = () => ref.current()
   return { set, click }
 }
-export default App

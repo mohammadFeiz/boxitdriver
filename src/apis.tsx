@@ -1,6 +1,6 @@
 import AIOApis from "./components/aio-apis";
 import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_failedReason, I_listi_report_filter, I_paymentDetail, I_shift } from "./types";
-import { changePriority_mock, getConsignments_mock, getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
+import { getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
     selectStatus: { id: number, text: string },
@@ -22,13 +22,15 @@ export class Apis extends AIOApis {
     driverId: number;
     mock: boolean = true;
     mockDelay: number = 2000;
-    constructor(p: { token: string, base_url: string, driverId: number }) {
+    constructor(p: { token: string, base_url: string, driverId: number,logout:()=>void }) {
         super({
             id: 'boxitdriver',
-            token: p.token, lang: 'fa',
+            defaults:{token:p.token,messageTime:30},
+            lang: 'fa',
             handleErrorMessage: (err) => {
-                if (err.response?.status === 401) { return '' }
-                return 'error'
+                if (err.response?.status === 401) {p.logout(); return ''}
+                try{return err.response.data.messages[0].message}
+                catch{return 'error'}
             }
         })
         this.base_url = p.base_url;
@@ -56,7 +58,7 @@ export class Apis extends AIOApis {
         const year = '1402'
         const month = '11'
         const day = '29'
-        const path = this.getUrlQueryParam({
+        const queryObject = {
             driverId: this.driverId.toString(),
             // year:date[0].toString(),
             // month:date[1].toString(),
@@ -64,11 +66,12 @@ export class Apis extends AIOApis {
             year,
             month,
             day,
-        })
+        }
         const { success, response } = await this.request<{ data: { response: I_consignmentServer[] } }>({
             name: 'getConsignments',
             method: 'get',
-            url: `${this.base_url}/consignment-api/driverService/DriverDeliveryPickUpGrid${path}`,
+            queryObject,
+            url: `${this.base_url}/consignment-api/driverService/DriverDeliveryPickUpGrid`,
             description: 'دریافت لیست مرسوله ها',
             //mock: this.mock ? getConsignments_mock : undefined,
             //mockDelay: this.mockDelay
@@ -128,7 +131,7 @@ export class Apis extends AIOApis {
         const res: string[] = consignments.map((o) => `${o.lng},${o.lat}`)
         const currentLocation = await getUserLocation()
         if (currentLocation === null) {
-            this.addAlert({
+            this.actions.addAlert({
                 type: 'error',
                 text: 'خطا در دریافت موقعیت مکانی شما',
             })
@@ -201,24 +204,16 @@ export class Apis extends AIOApis {
             url: `${this.base_url}/consignment-api/driverService/pickUpAcceptCount`,
             body,
         })
-        if (success) {
-            debugger
-            return true
-        }
-        else {
-            debugger
-            return false
-        }
+        if (success) {return true}
+        else {return false}
     }
-    pickup_sendFailedReasons = async (p: { file?: any, failedReasonId: number, description: string, consignment: I_consignment }) => {
+    pickup_failed = async (p: { image?: any, failedReasonId: number, description: string, consignment: I_consignment }) => {
+        debugger
         let imageId:any;
-        if(p.file){
-            const res = await this.setImage(p.file);
+        if(p.image){
+            const res = await this.setImage(p.image);
             if(res){imageId = res}
-            else {
-                alert('ارسال تصویر نا موفق بود')
-                return false
-            }
+            else {alert('ارسال تصویر نا موفق بود'); return false}
         }
         const body = {
             failedReasonId: p.failedReasonId,
@@ -228,8 +223,8 @@ export class Apis extends AIOApis {
             imageId
         }
         const { response, success } = await this.request<any>({
-            name: '',
-            description: '',
+            name: 'pickup_failed',
+            description: 'اعلام جمع آوری نا موفق به سرور',
             method: 'post',
             url: `${this.base_url}/consignment-api/driverService/driverPickUpFailedReason`,
             body
@@ -256,7 +251,7 @@ export class Apis extends AIOApis {
         }
         else { return false }
     }
-    delivery_sendFailedReasons = async (p: { file?: any, failedReasonId: number, description: string, consignments: I_consignment[] }) => {
+    delivery_failed = async (p: { file?: any, failedReasonId: number, description: string, consignments: I_consignment[] }) => {
         let imageId: any;
         if (p.file) {
             const res = await this.setImage(p.file);
@@ -266,15 +261,15 @@ export class Apis extends AIOApis {
                 return false
             }
         }
-        const queryString = this.getUrlQueryParam({
-            driverId: this.driverId.toString(),
-            failedReasonId: p.failedReasonId.toString(),
-            imageId,
-            description: p.description
-        })
         const { response, success } = await this.request<any>({
-            name: 'delivery_sendFailedReasons', description: 'اعلام علل تحویل نا موفق', method: 'post',
-            url: `${this.base_url}/consignment-api/driverService/deliveryFailed/${queryString}`,
+            queryObject:{
+                driverId: this.driverId.toString(),
+                failedReasonId: p.failedReasonId.toString(),
+                imageId,
+                description: p.description
+            },
+            name: 'delivery_failed', description: 'اعلام علل تحویل نا موفق', method: 'post',
+            url: `${this.base_url}/consignment-api/driverService/deliveryFailed`,
             body: p.consignments.map((o) => o.number)
         })
         if (success) { }
@@ -291,16 +286,16 @@ export class Apis extends AIOApis {
                 return false
             }
         }
-        const queryString = this.getUrlQueryParam({
-            driverId: p.driverId.toString(),
-            signatureId,
-            //description:p.description,
-            deliveryCode: p.deliveryCode,
-            nationalCode: p.nationalCode
-        })
         const { response, success } = await this.request<any>({
+            queryObject:{
+                driverId: p.driverId.toString(),
+                signatureId,
+                //description:p.description,
+                deliveryCode: p.deliveryCode,
+                nationalCode: p.nationalCode
+            },
             name: 'delivery_success', description: 'اعلام تحویل موفق', method: 'post',
-            url: `${this.base_url}/consignment-api/driverService/delivered${queryString}`,
+            url: `${this.base_url}/consignment-api/driverService/delivered`,
             body: p.consignments.map((o) => o.number)
         })
         return !!success
@@ -317,7 +312,6 @@ export class Apis extends AIOApis {
         return new File([u8arr], fileName, { type: mime });
     }
     setImage = async (file: any) => {
-        debugger
         let fd = new FormData();
         fd.append('file', file)
         const { success, response } = await this.request<{ data: { response: { id: string } } }>({
