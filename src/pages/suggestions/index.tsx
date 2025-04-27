@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { I_dateShift, I_shift } from "../../types";
+import { I_dateShift, I_shift, I_user } from "../../types";
 import AIODate from "aio-date";
 import { SplitNumber } from "aio-utils";
 import Icon from "@mdi/react";
@@ -12,11 +12,11 @@ import usePopup from "aio-popup";
 import { SuggestionProvider, useSuggestionContext } from "./context";
 import TimeRange from "../../components/time-range";
 import Pair from "../../components/pair";
-import { dateShifts } from "../../mock";
 import FooterButtons from "../../components/footer-buttons";
 
 const Suggestions: FC = () => {
-    const { user } = useAppContext()
+    const { user,apis } = useAppContext()
+    const [dateShifts,setDateShifts] = useState<I_dateShift[]>([])
     const popup = usePopup()
 
     const openShiftModal = (suggestion: I_shift) => {
@@ -39,8 +39,23 @@ const Suggestions: FC = () => {
             </div>
         )
     }
+    const fetchShifts = async()=>{
+        const res = await apis.getShifts(user);
+        if(res){setDateShifts(res)}
+    }
+    const acceptShift = async (shift: I_shift) => {
+        const res = await apis.shiftAccept(shift);
+        if (res) {
+            popup.addSnackebar({ text: 'شیفت با موفقیت رزرو شد', type: 'success' })
+            fetchShifts()
+            popup.removeModal()
+        }
+    }
+    useEffect(()=>{
+        fetchShifts()
+    },[])
     return (
-        <SuggestionProvider value={{ openShiftModal }}>
+        <SuggestionProvider value={{ openShiftModal,acceptShift,popup }}>
             <div className="app-page">
                 <div className="h-100- ofy-auto- br-16- p-v-12-">
                     {dateShifts.map((ds) => (
@@ -80,28 +95,28 @@ const Shift: FC<{ shift: I_shift, index: number }> = ({ shift, index }) => {
             setMounted(true)
         }, index * 120)
     }, [])
-
     return (
         <div className={`flex-col- fs-12- p-12- gap-12- brd-b- brd-c-10- rotate-card-${mounted ? ' mounted-' : ''}`}>
-            <div className="flex-row-">
+            <div className="flex-row- align-v- gap-4-">
                 <div className="msf">بازه ارسال : </div>
                 <TimeRange timeRange={timeRange}/>
                 <div className="flex-1-"></div>
                 <div className="msf">مبلغ : </div>
                 <div className="bold-">{`${SplitNumber(amount)} ریال`}</div>
             </div>
-            <div className="flex-row-">
+            <div className="flex-row- align-v- gap-4-">
                 <div className="msf">ناحیه : </div>
                 <div className="bold- flex-1- fs-10-">{zone}</div>
                 <div className="flex-1-"></div>
                 <ArrowButton text='رزرو شیفت' onClick={() => openShiftModal(shift)} />
             </div>
         </div>
-
     )
 }
-
+   
 const ShiftReserve: FC<{ shift: I_shift }> = ({ shift }) => {
+    const {user} = useAppContext()
+    const {acceptShift,popup} = useSuggestionContext()
     return (
         <div className="flex-col- gap-12- h-100-">
             <div className="flex-1- ofy-auto- p-12- flex-col- gap-12-">
@@ -113,7 +128,8 @@ const ShiftReserve: FC<{ shift: I_shift }> = ({ shift }) => {
                         <Pair label='تاریخ شیفت:' value={shift.date} dir='v'/>
                         <Pair label='بازه ارسال:' value={<TimeRange timeRange={shift.timeRange}/>} dir='v'/>
                     </div>
-                    <Pair label='آدرس مرکز توزیع:' value={shift.hub.address} dir='v'/>
+                    {/* notice */}
+                    <Pair label='آدرس مرکز توزیع:' value={''} dir='v'/>  
                     <ArrowButton text='مشاهده روی نقشه' onClick={() => { }} />
                     <div className="h-1- w-100- bg-12-"></div>
                     <div className="flex-row- bold-">
@@ -127,6 +143,8 @@ const ShiftReserve: FC<{ shift: I_shift }> = ({ shift }) => {
             <FooterButtons
                 trueText="قبول شیفت"
                 canselText="لغو"
+                trueAttrs={{ onClick: ()=>acceptShift(shift) }}
+                canselAttrs={{ onClick: () => { popup.removeModal() } }}
             />
         </div>
     )

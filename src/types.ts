@@ -48,19 +48,14 @@ export type I_consignmentHook = {
 export type I_timelineHook = { getDate: () => number[], render: () => ReactNode }
 export type I_searchActionHook = { set: (action: any) => void, click: () => void }
 export type I_shift = {
-    timeRange: number[],
+    timeRange: string,
     amount: number,
     zone: string,
     date: string,
-    id: number,
-    number: string,
-    hub: {
-        id: number,
-        name: string,
-        address: string,
-        lat: number,
-        lng: number
-    }
+    hubAddress:string,
+    hubLat:number,
+    hubLng:number,
+    id:number
 }
 export type I_dateShift = {
     dateArray: number[],

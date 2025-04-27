@@ -79,7 +79,6 @@ const FailedReasonModal: FC<{ consignments: I_consignment[], multiple: boolean, 
                 trueAttrs={{ 
                     disabled: form.isSubmitDisabled(), 
                     onClick: () => { 
-                        debugger
                         const image = form.data.image?base64ToFile(form.data.image):undefined
                         const failedReasonId = form.data.failedReasonId;
                         onFailed({type,consignments,failedReasonId,image}); 

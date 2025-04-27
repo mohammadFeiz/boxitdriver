@@ -90,7 +90,6 @@ const UserWrapper:FC<{token:string,logout:()=>void}> = ({token,logout})=>{
   const fetchUser = async ()=>{
     const res = await apis.fetchUser();
     if(res){
-      debugger
       apis.setDriverId(res.id)
       setUser(res)
     }

@@ -9,16 +9,15 @@ import AIMap from "aio-map";
 import usePopup from "aio-popup";
 import FooterButtons from "../../components/footer-buttons";
 import { MyShiftProvider, useMyShiftContext } from "./context";
-import { AICheckbox } from "aio-input";
 import { useAppContext } from "../../context";
 import { useShifts } from "./useShifts";
 import ScanRow from "../../components/scan-item";
 import ScanInput from "../../components/scan-input";
 type I_activeItems = {[id:string]:I_consignment | undefined}
 const MyShift: FC = () => {
-    const {apis} = useAppContext()
+    const {apis,user} = useAppContext()
     const popup = usePopup()
-    const shiftsHook = useShifts(apis)
+    const shiftsHook = useShifts(apis,user)
     const timelineHook = useTimeline((newDate)=>shiftsHook.getShifts(newDate))
     const [activeItems,SetActiveItems] = useState<I_activeItems>({})
     const setActiveItem = (consignment:I_consignment)=>{
@@ -58,6 +57,7 @@ const Shifts: FC<{ shiftsHook: I_shiftsHook }> = ({ shiftsHook }) => {
 }
 
 const ShiftCard: FC<{ shift: I_shift }> = ({ shift }) => {
+    debugger
     const { openDetailsModal } = useMyShiftContext()
     const pair_layout = (key: string, value: ReactNode) => {
         return (
@@ -70,18 +70,19 @@ const ShiftCard: FC<{ shift: I_shift }> = ({ shift }) => {
     return (
         <div className="flex-col- fs-12- brd-c-12- p-12- br-12-">
             <div className="flex-row- brd-c-12- brd-b- align-v- h-36- p-b-12-">
-                <div className="bold- flex-1-">{`شماره شیفت : ${shift.number}`}</div>
+                <div className="bold- flex-1-"></div>
                 <ArrowButton text='جزییات شیفت' onClick={() => openDetailsModal(shift)} />
             </div>
             {pair_layout('مبلغ : ', `${SplitNumber(shift.amount)} ریال`)}
             {pair_layout('ناحیه : ', shift.zone)}
-            {pair_layout('ساعت : ', <TimeRange timeRange={shift.timeRange} />)}
+            {pair_layout('ساعت : ', shift.timeRange)}
 
         </div>
     )
 }
 
 const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ shift, onReject }) => {
+    const {user} = useAppContext()
     const { popup, openScanModal } = useMyShiftContext()
     const openRejectModal = () => {
         popup.addModal({
@@ -124,7 +125,7 @@ const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ s
                     </div>
                     <div className="brd-c-12- br-12- p-12- flex-col- gap-12-">
                         <div className="flex-row- align-v- brd-c-12- brd-b- h-36- p-b-12-">
-                            <div className="flex-1- bold-">{`شماره شیفت : ${shift.number}`}</div>
+                            <div className="flex-1- bold-"></div>
                             <div className="color-6 bold- fs-14- pointer-" onClick={openRejectModal}>انصراف از توزیع</div>
                         </div>
                         <div className="flex-row- align-v-">
@@ -135,7 +136,7 @@ const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ s
                             <div className="flex-1-"><Pair label='مبلغ:' value={`${SplitNumber(shift.amount)} ریال`} dir='v' /></div>
                         </div>
                         <div className="flex-row- align-v-">
-                            <div className="flex-1-"><Pair label='آدرس هاب:' value={shift.hub.address} dir='v' /></div>
+                            <div className="flex-1-"><Pair label='آدرس هاب:' value={user.hub.text} dir='v' /></div>
                         </div>
                         <div className="color-6 flex-row- align-v- fs-14- bold- gap-6-">
                             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -145,7 +146,7 @@ const ShiftDetails: FC<{ shift: I_shift, onReject: () => Promise<void> }> = ({ s
                             مسیر یابی
                         </div>
                         <AIMap
-                            value={[shift.hub.lat, shift.hub.lng]}
+                            value={[shift.hubLat, shift.hubLng]}
                             mapStyle={{ height: 240 }}
                             attrs={{ className: 'brd-c-13- br-12- of-hidden-' }}
                             marker={false}

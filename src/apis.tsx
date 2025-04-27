@@ -1,5 +1,5 @@
 import AIOApis from "./components/aio-apis";
-import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_failedReason, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
+import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_dateShift, I_failedReason, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
 import { getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
@@ -252,7 +252,6 @@ export class Apis extends AIOApis {
         else {return false}
     }
     pickup_failed = async (p: { image?: any, failedReasonId: number, description: string, consignment: I_consignment }) => {
-        debugger
         let imageId:any;
         if(p.image){
             const res = await this.setImage(p.image);
@@ -274,11 +273,9 @@ export class Apis extends AIOApis {
             body
         })
         if (success) {
-            debugger
             return true
         }
         else {
-            debugger
             return false
         }
     }
@@ -380,18 +377,113 @@ export class Apis extends AIOApis {
         if (success) { return response.data }
         else { return false }
     }
-    getShifts = async (date: number[]) => {
-        const { response, success } = await this.request<{ data: I_shift[] }>({
+    getMyShifts = async (date:number[])=>{
+        const driverId = this.driverId;
+        const [year,month,day] = date
+        const {success,response} = await this.request<{
+            data: {
+                response: {
+                    price: number,
+                    sentPeriod: string,
+                    region: string,
+                    capacity: number,
+                    hubAddress: string,
+                    date: string,
+                    latitude: number,
+                    longitude: number,
+                    shiftId:number
+                }[]
+            }
+        }>({
+            name:'',
+            description:'دریافت شیفت های من',
+            method:'get',
+            queryObject:{year,month,day,driverId},
+            url:`/resource-api/freelancerShiftReservation/v1/s3/driverShiftReservations`,
+        })
+        if(success){
+            const res:I_shift[] = response.data.response.map((o)=>{
+                const shift:I_shift = {
+                    timeRange:o.sentPeriod,
+                    amount:o.price,
+                    zone:o.region,
+                    date:`${date[0]}/${date[1]}/${date[2]}`,
+                    hubAddress:o.hubAddress,
+                    hubLat:o.latitude,
+                    hubLng:o.longitude,
+                    id:o.shiftId
+                }
+                debugger
+                return shift;
+            })
+            return res
+        }
+        else {
+            return false
+        }
+    }
+    getShifts = async (user:I_user) => {
+        const { response, success } = await this.request<{
+            data: {
+                response: {
+                    price: number,
+                    sendPeriod: string,
+                    region: string,
+                    capacity: number,
+                    deliveryRegion: string,
+                    date: string,
+                    latitude: number,
+                    longitude: number,
+                    id:number
+                }[]
+            }
+        }>({
             name: '',
             description: 'دریافت شیفت ها',
-            method: 'post',
-            url: `${this.base_url}/getShifts`,
-            body: { date },
-            mock: this.mock ? getShifts_mock : undefined,
-            mockDelay: this.mockDelay
+            method: 'get',
+            url: `${this.base_url}/resource-api/freelancerShiftPreparation/v1/s3/driverShiftSuggestion/${user.hub.id}`,
         })
-        if (success) { return response.data }
+        if (success) {
+            console.log(response) 
+            const dic:{[date:string]:I_shift[]} = {}
+            response.data.response.map((o)=>{
+                const shift:I_shift = {
+                    timeRange:o.sendPeriod,
+                    amount:o.price,
+                    zone:o.region,
+                    date:o.date,
+                    hubAddress:o.deliveryRegion,
+                    hubLat:o.latitude,
+                    hubLng:o.longitude,
+                    id:o.id
+                }
+                dic[shift.date] = dic[shift.date] || []
+                dic[shift.date].push(shift)
+            }) 
+            const res:I_dateShift[] = Object.keys(dic).map((date)=>{
+                return {
+                    dateArray:date.split('/').map((o)=>parseInt(o)),
+                    shifts:dic[date]
+                }
+            })
+            return res
+        }
         else { return false }
+    }
+    shiftAccept = async (shift:I_shift)=>{
+        debugger
+        const {success} = await this.request<any>({
+            name:'',
+            description:'قبول شیفت',
+            method:'post',
+            url:`${this.base_url}/resource-api/freelancerShiftReservation/v1/s3/acceptShift`,
+            body:{
+                driverId:this.driverId,
+                preparationId:shift.id
+            }
+        })
+        if(success){return true}
+        else {return false}
     }
     amariReport = async (p: { from?: string, to?: string }) => {
         const res: I_amari_report = {
@@ -421,7 +513,6 @@ export class Apis extends AIOApis {
     }
 
 }
-
 
 type Coordinates = { lat: number; lng: number };
 
@@ -454,7 +545,8 @@ export async function getUserLocation(): Promise<Coordinates | null> {
             lat: position.coords.latitude,
             lng: position.coords.longitude
         };
-    } catch (err) {
+    } 
+    catch (err) {
         console.error("Failed to get location:", err);
         return null;
     }
