@@ -73,9 +73,9 @@ export type I_sidemenuHook = {
     open: () => void
 }
 export type I_shiftsHook = {
-    shifts: I_shift[],
+    myShifts: I_shift[],
     retry: boolean,
-    getShifts: (date?: number[]) => Promise<void>
+    getMyShifts: (date?: number[]) => Promise<void>
 }
 export type I_failedDeliveryModel = {
     image: string,

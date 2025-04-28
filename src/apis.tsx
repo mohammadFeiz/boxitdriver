@@ -31,7 +31,13 @@ export class Apis extends AIOApis {
             handleErrorMessage: (err) => {
                 if (err.response?.status === 401) {p.logout(); return ''}
                 try{return err.response.data.messages[0].message}
-                catch{return 'error'}
+                catch{
+                    try{
+                        const message = err.response.data.message;
+                        return message
+                    }
+                    catch{return 'error'}
+                }
             }
         })
         this.base_url = p.base_url;
@@ -413,7 +419,6 @@ export class Apis extends AIOApis {
                     hubLng:o.longitude,
                     id:o.shiftId
                 }
-                debugger
                 return shift;
             })
             return res
@@ -441,7 +446,7 @@ export class Apis extends AIOApis {
             name: '',
             description: 'دریافت شیفت ها',
             method: 'get',
-            url: `${this.base_url}/resource-api/freelancerShiftPreparation/v1/s3/driverShiftSuggestion/${user.hub.id}`,
+            url: `/resource-api/freelancerShiftPreparation/v1/s3/driverShiftSuggestion/${user.hub.id}`,
         })
         if (success) {
             console.log(response) 
@@ -471,16 +476,58 @@ export class Apis extends AIOApis {
         else { return false }
     }
     shiftAccept = async (shift:I_shift)=>{
-        debugger
         const {success} = await this.request<any>({
             name:'',
             description:'قبول شیفت',
             method:'post',
-            url:`${this.base_url}/resource-api/freelancerShiftReservation/v1/s3/acceptShift`,
+            url:`/resource-api/freelancerShiftReservation/v1/s3/acceptShift`,
             body:{
                 driverId:this.driverId,
                 preparationId:shift.id
             }
+        })
+        if(success){return true}
+        else {return false}
+    }
+    shift_consignments = async (myShift:I_shift)=>{
+        const {response,success} = await this.request<{data:{response:number[]}}>({
+            name:'shift_consignments',
+            description:'دریافت مرسوله های شیفت',
+            method:'get',
+            queryObject:{driverId:this.driverId,shiftId:myShift.id},
+            url:`/consignment-api/driverService/v1/s0/findDriverConsignmentList`
+        })
+        if(success){
+            return response.data.response
+        }
+        else {
+            return false
+        }
+    }
+    shift_scanConsignments = async (shiftId:number,numbers:number[])=>{
+        const {response,success} = await this.request<any>({
+            name:'shift_scanConsignments',
+            description:'اعلام مرسوله های اسکن شده',
+            method:'post',
+            url:`/consignment-api/driverService/v1/s0/scanConsignment`,
+            body:{driverId:this.driverId,shiftId,cprNumberList:numbers}
+        })
+        if(success){
+            debugger
+            return true
+        }
+        else {
+            debugger
+            return false
+        }
+    }
+    shift_canselDelivery = async (shiftId:number)=>{
+        const {response,success} = await this.request<any>({
+            name:'shift_canselDelivery',
+            description:'انصراف از توزیع مرسوله',
+            method:'post',
+            url:`/consignment-api/driverService/v1/s0/cancelShift`,
+            body:{shiftId,driverId:this.driverId}
         })
         if(success){return true}
         else {return false}

@@ -4,7 +4,7 @@ import { I_usePopup } from "aio-popup";
 type I_MyShiftContext = {
     popup:I_usePopup,
     openDetailsModal:(shift:I_shift)=>void,
-    openScanModal:()=>void,
+    openScanModal:(shift:I_shift,numbers: number[])=>void,
     activeItems:{[id:string]:I_consignment | undefined},
     setActiveItem:(consignment:I_consignment)=>void
 }

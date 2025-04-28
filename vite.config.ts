@@ -6,7 +6,8 @@ export default defineConfig({
   server: {
     port: 3001,
     allowedHosts:[
-      "myboxi"
+      "myboxi",
+      "cassette-label-resources-generations.trycloudflare.com"
     ]
   },
   plugins: [react()],
