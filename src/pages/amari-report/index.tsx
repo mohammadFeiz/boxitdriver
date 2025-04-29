@@ -1,5 +1,4 @@
-import { AIDate, AIFormInput } from "aio-input";
-import { FC, useRef, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { I_amari_report, I_dateRange } from "../../types";
 import { useAppContext } from "../../context";
 import useDateRange from "../../components/use-date-range";
@@ -36,8 +35,17 @@ const AmariReport: FC = () => {
             return false
         }
     }
+    useEffect(()=>{
+        fetchData({from:undefined,to:undefined})
+    },[])
     const dateRangeHook = useDateRange((async (newDateRange)=>await fetchData(newDateRange)))
-    const toolbar_layout = () => dateRangeHook.render()
+    const toolbar_layout = () => {
+        return (
+            <div className="p-h-12- p-t-12-">
+                {dateRangeHook.render()}
+            </div>
+        )
+    }
     const row_layout = (label: string, value: number) => {
         return (
             <div className="flex-row- align-v-">
@@ -69,7 +77,7 @@ const AmariReport: FC = () => {
             bag: 'تعداد کیسه‌های تحویل ناموفق'
         }
         return (
-            <div className="flex-col- gap-6- brd-c-12- br-6- p-12- bg-d-5-">
+            <div className="flex-col- gap-6- brd-c-12- br-6- p-12- bg-d-3-">
                 {row_layout(totalDic[type], data[type].total)}
                 {row_layout(pendingDic[type], data[type].pending)}
                 {row_layout(successDic[type], data[type].success)}
@@ -79,7 +87,7 @@ const AmariReport: FC = () => {
     }
     const cards_layout = () => {
         return (
-            <div className="flex-col- gap-12-">
+            <div className="flex-col- gap-12- p-12-">
                 {card_layout('delivery')}
                 {card_layout('pickup')}
                 {card_layout('bag')}

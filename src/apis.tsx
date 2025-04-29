@@ -1,6 +1,7 @@
 import AIOApis from "./components/aio-apis";
-import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_dateShift, I_failedReason, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
+import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_dateShift, I_failedReason, I_list_report_row, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
 import { getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
+import AIODate from "aio-date";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
     selectStatus: { id: number, text: string },
@@ -533,30 +534,84 @@ export class Apis extends AIOApis {
         else {return false}
     }
     amariReport = async (p: { from?: string, to?: string }) => {
-        const res: I_amari_report = {
-            delivery: {
-                total: 10,
-                pending: 4,
-                success: 3,
-                failed: 3
-            },
-            pickup: {
-                total: 20,
-                pending: 10,
-                success: 6,
-                failed: 4
-            },
-            bag: {
-                total: 5,
-                pending: 2,
-                success: 2,
-                failed: 1
+        const DATE = new AIODate()
+        const [fromYear,fromMonth,fromDay] = p.from?DATE.convertToArray(p.from):DATE.getToday(true);
+        const [toYear,toMonth,toDay] = p.to?DATE.convertToArray(p.to):DATE.getToday(true);
+        const queryObject = {fromYear,fromMonth,fromDay,toYear,toMonth,toDay,driverId:this.driverId}
+        const {success,response} = await this.request<{
+            data: {
+                response: [
+                    {
+                        status: "ALL_DELIVERY",
+                        count: number
+                    },
+                    {
+                        status: "WAITING_DELIVERY",
+                        count: number
+                    },
+                    {
+                        status: "DELIVERED",
+                        count: number
+                    },
+                    {
+                        status: "FAILED_DELIVERED",
+                        count: number
+                    },
+                    {
+                        status: "ALL_PICKUP",
+                        count: number
+                    },
+                    {
+                        status: "PICKUP_SUCCESS",
+                        count: number
+                    },
+                    {
+                        status: "PICKUP_WAITING",
+                        count: number
+                    },
+                    {
+                        status: "PICKUP_FAIL",
+                        count: number
+                    }
+                ]
             }
+        }>({
+            name:'amariReport',
+            description:'دریافت گزارشات آماری',
+            method:'get',
+            url:`/consignment-api/driverService/driverStatisticalReport`,
+            queryObject
+        })
+        if(success){
+            const res: I_amari_report = {
+                delivery: {total: 0,pending: 0,success: 0,failed: 0},
+                pickup: {total: 0,pending: 0,success: 0,failed: 0},
+                bag: {total: 0,pending: 0,success: 0,failed: 0}
+            }
+            for(let i = 0; i < response.data.response.length; i++){
+                const {count,status} = response.data.response[i];
+                if(status === 'ALL_DELIVERY'){res.delivery.total = count}
+                else if(status === 'WAITING_DELIVERY'){res.delivery.pending = count}
+                else if(status === 'DELIVERED'){res.delivery.success = count}
+                else if(status === 'FAILED_DELIVERED'){res.delivery.failed = count}
+                else if(status === 'ALL_PICKUP'){res.pickup.total = count}
+                else if(status === 'PICKUP_SUCCESS'){res.pickup.success = count}
+                else if(status === 'PICKUP_WAITING'){res.pickup.pending = count}
+                else if(status === 'PICKUP_FAIL'){res.pickup.failed = count}
+            }
+            return res
         }
-        return res
+        else {
+            return false
+        }
     }
     listiReport = async (filter: I_listi_report_filter) => {
-        return []
+        const res:I_list_report_row[] = [
+            {id:0,date:'1404/4/5',shift:'9-11',type:'توزیع',status:'موفق'},
+            {id:1,date:'1404/4/5',shift:'9-11',type:'جمع آوری',status:'ناموفق'},
+            {id:2,date:'1404/4/5',shift:'9-11',type:'جمع آوری',status:'در انتظار'},
+        ]
+        return res
     }
 
 }

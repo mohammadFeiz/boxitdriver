@@ -5,6 +5,7 @@ import { I_usePopup } from "aio-popup";
 import { useAppContext } from "../context";
 import { mdiClose } from "@mdi/js";
 import Icon from "@mdi/react";
+import { useNavigate } from "react-router-dom";
 // type AI_Sidenav = {
 //     items: AI_sidenavItem[];
 //     onChange: (item: AI_sidenavItem) => void;
@@ -29,7 +30,8 @@ import Icon from "@mdi/react";
 //     render?: () => React.ReactNode;
 // }
 const AppSide: FC = () => {
-    const { user,popup,logout } = useAppContext()
+    const { user,popup,logout,sidemenuHook } = useAppContext()
+    const navigate = useNavigate()
     return (
         <Sidenav
             header={() => {
@@ -51,6 +53,13 @@ const AppSide: FC = () => {
                 if(v.value === 'logout'){
                     logout()
                 }
+                if(v.value === 'statisticalreport'){
+                    navigate('/statisticalreport')
+                }
+                if(v.value === 'listreport'){
+                    navigate('/listreport')
+                }
+                sidemenuHook.close()
             }}
             items={[
                 {
@@ -58,8 +67,8 @@ const AppSide: FC = () => {
                     icon: <svgs.sideReport />,
                     value: 'gozareshemarsoolat',
                     items: [
-                        { text: 'گزارش آماری', value: 'gozaresheamari' },
-                        { text: 'گزارش لیستی', value: 'gozareshelisti' }
+                        { text: 'گزارش آماری', value: 'statisticalreport' },
+                        { text: 'گزارش لیستی', value: 'listreport' }
                     ]
                 },
                 {

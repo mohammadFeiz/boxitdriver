@@ -16,6 +16,8 @@ import { Apis } from './apis';
 import ReTry from './components/re-try';
 import { hasAuthParams, useAuth } from 'react-oidc-context';
 import { CreateInstance } from 'aio-apis';
+import AmariReport from './pages/amari-report';
+import ListiReport from './pages/listi-report';
 // function App() {
 //   const auth = useAuth();
 
@@ -144,6 +146,9 @@ const Body: FC = () => {
         <Route path='/home/*' element={<Home />} />
         <Route path='/suggestions/*' element={<Suggestions />} />
         <Route path='/myshift/*' element={<MyShift />} />
+        <Route path='/statisticalreport' element={<AmariReport />} />
+        <Route path='/listreport' element={<ListiReport />} />
+        
       </Routes>
     </div>
   )

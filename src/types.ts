@@ -113,6 +113,13 @@ export type I_amari_report = {
         failed:number
     }
 }
+export type I_list_report_row = {
+    date:string,
+    shift:string,
+    type:'توزیع' | 'جمع آوری',
+    status:'موفق' | 'ناموفق' |  'در انتظار', 
+    id:number
+}
 export type I_dateRange = { from: string | undefined, to: string | undefined }
 export type I_listi_report_filter = {
     dateRange:I_dateRange,

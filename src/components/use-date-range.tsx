@@ -21,7 +21,7 @@ const useDateRange = (onChange: (newDateRange: I_dateRange) => Promise<boolean>)
                 label={`تاریخ ${type === 'from' ? 'از' : 'تا'}`}
                 input={(
                     <AIDate
-                        value={dateRange[type]}
+                        value={dateRange[type]} caret={false}
                         onChange={(v) => changeDateRange(type, v)}
                         placeholder={' '}
                         jalali={true}
