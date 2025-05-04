@@ -356,3 +356,7 @@ body {
 .ai-form{
   gap:24px;
 }
+.aio-input-date-theme-active{
+  background:#242E36;
+  color:#fff;
+}

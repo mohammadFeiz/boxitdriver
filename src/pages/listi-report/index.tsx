@@ -1,14 +1,15 @@
-import { AIDate, AIFormInput, AISelect } from "aio-input";
+import { AISelect, AIText } from "aio-input";
 import { FC, useEffect, useRef, useState } from "react";
-import { I_amari_report, I_consignmentType, I_list_report_row, I_listi_report_filter } from "../../types";
+import { I_list_report_row, I_listi_report_filter } from "../../types";
 import { useAppContext } from "../../context";
-import ScanInput from "../../components/scan-input";
 import useDateRange from "../../components/use-date-range";
 import AIOTable from 'aio-table';
 const ListiReport: FC = () => {
     const [rows, setRows] = useState<I_list_report_row[]>([])
     const { apis } = useAppContext()
-    const [checkDic,setCheckDic] = useState<{[key:string]:boolean}>({} as any)
+    const [checkDic, setCheckDic] = useState<{ [key: string]: boolean }>({} as any)
+    const checkDicRef = useRef<any>(checkDic)
+    checkDicRef.current = checkDic
     const [filter, setFilter] = useState<I_listi_report_filter>({
         dateRange: { from: undefined, to: undefined },
         type: undefined,
@@ -18,7 +19,7 @@ const ListiReport: FC = () => {
     const filterRef = useRef<I_listi_report_filter>(filter)
     filterRef.current = filter
     const fetchData = async (filter: I_listi_report_filter) => {
-        const res: I_list_report_row[] = await apis.listiReport(filter)
+        const res = await apis.listiReport(filter)
         if (res) {
             setRows(res)
             return true
@@ -45,7 +46,11 @@ const ListiReport: FC = () => {
         return (
             <div className="flex-col- p-12- gap-12-">
                 {dateRangeHook.render()}
-                <ScanInput onChange={(cprNumber) => changeFilter({ ...filterRef.current, cprNumber })} />
+                <div className="fs-12-">بارکد</div>
+                <AIText
+                    value={filter.cprNumber} placeholder="شماره بارکد را وارد کنید"
+                    onChange={(cprNumber) => changeFilter({ ...filterRef.current, cprNumber })}
+                />
                 <div className="flex-row- gap-12- align-v-">
                     <div className="flex-col- flex-1-">
                         <div className="fs-12-">نوع</div>
@@ -59,13 +64,20 @@ const ListiReport: FC = () => {
             </div>
         )
     }
+    const checkClick = (row:I_list_report_row)=>{
+        const id = row.id.toString()
+        const checkDic = checkDicRef.current
+        const newCheckDic = {...checkDic,[id]:!checkDic[id]}
+        setCheckDic(newCheckDic)        
+        
+    }
     const table_layout = () => {
         return (
             <div className="flex-1-">
                 <AIOTable
                     value={rows}
                     columns={[
-                        { title: <UncheckIcon/>,width:48, template: ({ row }) => <Check checked={checkDic[row.id.toString()]}/>,justify: true },
+                        { title: <UncheckIcon />, width: 48, template: ({ row }) => <Check checked={checkDicRef.current[row.id.toString()]} onClick={()=>checkClick(row)} />, justify: true },
                         { title: 'تاریخ', value: 'row.date', justify: true },
                         { title: 'شیفت', value: 'row.shift', minWidth: 72, justify: true },
                         { title: 'وضعیت ', minWidth: 84, value: 'row.status', template: ({ row }) => <Status status={row.status} type={row.type} />, justify: true },
@@ -97,7 +109,7 @@ const Status: FC<{ status: I_list_report_row['status'], type: I_list_report_row[
     }
     const { color, background } = dic[status]
     return (
-        <div className="fs-12- br-16- w-fit- flex-row- align-vh- p-h-12-" style={{ background, color, height: 30 }}>{`${type} ${status}`}</div>
+        <div className="fs-10- br-16- w-fit- flex-row- align-vh- p-h-12-" style={{ background, color, height: 30 }}>{`${type} ${status}`}</div>
     )
 }
 
@@ -111,10 +123,10 @@ const Info: FC<{ row: I_list_report_row }> = ({ row }) => {
     )
 }
 
-const Check: FC<{checked:boolean}> = ({checked}) => {
+const Check: FC<{ checked: boolean,onClick:()=>void }> = ({ checked,onClick }) => {
     return (
-        <div className="msf">
-            {checked?<CheckIcon /> : <UncheckIcon />}
+        <div className="msf" onClick={onClick}>
+            {checked ? <CheckIcon /> : <UncheckIcon />}
         </div>
     )
 }

@@ -1,7 +1,8 @@
 import AIOApis from "./components/aio-apis";
-import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_dateShift, I_failedReason, I_list_report_row, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
+import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_dateRange, I_dateShift, I_failedReason, I_list_report_row, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
 import { getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 import AIODate from "aio-date";
+import { GetRandomNumber } from "aio-utils";
 type I_consignmentServer = {
     selectDriverCardType: { id: 0 | 1 },
     selectStatus: { id: number, text: string },
@@ -191,10 +192,12 @@ export class Apis extends AIOApis {
         return res.join('|')
     }
     priorityByParsiMap = async (consignments: I_consignment[]): Promise<any> => {
-        if (this.mock) { return priorityByParsiMap_mock(consignments) }
+        //if (this.mock) { return priorityByParsiMap_mock(consignments) }
+        debugger
         const key = 'p17629b8b76ae143a78ecc70946e02ee65ba0d2b6c'
         const travelMode = 'driving'
-        const waypoints = this.getWeyPoints(consignments)
+        const waypoints = await this.getWeyPoints(consignments)
+        if(!waypoints){return false}
         const { success } = await this.request<{
             data: {
                 legs: {
@@ -213,7 +216,9 @@ export class Apis extends AIOApis {
         if (success) {
             //const legs = response.data.legs
         }
-        else { return false }
+        else { 
+            return false 
+        }
 
     }
     changePriority = async (consignments: I_consignment[]) => {
@@ -606,12 +611,56 @@ export class Apis extends AIOApis {
         }
     }
     listiReport = async (filter: I_listi_report_filter) => {
-        const res:I_list_report_row[] = [
-            {id:0,date:'1404/4/5',shift:'9-11',type:'توزیع',status:'موفق'},
-            {id:1,date:'1404/4/5',shift:'9-11',type:'جمع آوری',status:'ناموفق'},
-            {id:2,date:'1404/4/5',shift:'9-11',type:'جمع آوری',status:'در انتظار'},
-        ]
-        return res
+        const {dateRange,type,status,cprNumber} = filter;
+        const {from,to} = dateRange
+        const DATE = new AIODate()
+        const [fromYear,fromMonth,fromDay] = from?DATE.convertToArray(from):DATE.getToday(true);
+        const [toYear,toMonth,toDay] = to?DATE.convertToArray(to):DATE.getToday(true);
+        const queryObject = {fromYear,fromMonth,fromDay,toYear,toMonth,toDay,driverId:this.driverId,
+            //cprNumber:cprNumber?cprNumber:undefined
+        }
+        const {response,success} = await this.request<{
+            data:{
+                response:{
+                    shift:string,
+                    status:
+                        "در انتظار توزیع - تحویل به موزع" | 
+                        "تحویل شده به مقصد" | 
+                        "اسکن ورود به هاب" | 
+                        "اسکن خروج از هاب" | 
+                        "در انتظار توزیع –در انتظار تایید مسئول هاب",
+                    type:string,
+                    date:{year:number,month:number,day:number}
+                }[]
+            }
+        }>({
+            name:'listiReport',
+            queryObject,
+            description:'دریافت گزارش لیستی',
+            method:'get',
+            url:`/consignment-api/driverService/driverListReport`
+        }) 
+        if(success){
+            let list:I_list_report_row[] = response.data.response.map((o)=>{
+                let status:I_list_report_row["status"] = 'در انتظار';
+                if(o.status.indexOf('در انتظار') !== -1){status = 'در انتظار'}
+                else if(o.status.indexOf('نا') !== -1){status = 'ناموفق'}
+                else {status = 'موفق'}
+                return {
+                    date:`${o.date.year}/${o.date.month}/${o.date.day}`,
+                    shift:o.shift,
+                    status,
+                    type:o.type === 'توزیع'?'توزیع':'جمع آوری',
+                    id:GetRandomNumber(0,1000)
+                }
+            });
+            if(list.length > 50){list = list.slice(0,5)}
+            return list
+        }
+        else {
+            debugger
+            return false
+        }
     }
 
 }
@@ -620,21 +669,27 @@ type Coordinates = { lat: number; lng: number };
 
 export async function getUserLocation(): Promise<Coordinates | null> {
     try {
-        // مرحله ۱: چک کن API ها موجود هستن
         if (!navigator.permissions || !navigator.geolocation) {
             console.warn("Geolocation or Permissions API not supported.");
             return null;
         }
 
-        // مرحله ۲: درخواست اجازه برای دسترسی به موقعیت
         const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
 
         if (permissionStatus.state === "denied") {
-            console.warn("Location permission denied by user.");
+            alert(`
+                دسترسی به موقعیت مکانی غیرفعال است.
+            
+                لطفاً مراحل زیر را دنبال کنید:
+                1. روی آیکون 🔒 کنار آدرس کلیک کنید.
+                2. گزینه Location را روی "Allow" تنظیم کنید.
+                3. صفحه را رفرش کنید.
+            
+                ❤️ با تشکر
+              `)
             return null;
         }
 
-        // مرحله ۳: گرفتن لوکیشن
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(resolve, reject, {
                 enableHighAccuracy: true,

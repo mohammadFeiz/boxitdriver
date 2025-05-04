@@ -11,6 +11,7 @@ import { mdiCarSettings, mdiPin } from "@mdi/js";
 import { useAppContext } from "../../context";
 import useConsignment from "./useConsignment";
 import { useHomeModal } from "./useHomeModal";
+import checkIcon from "../../components/checkIcon";
 
 const Home: FC = () => {
     const { searchAction, apis, setretry, user } = useAppContext()
@@ -121,7 +122,7 @@ const Toolbar: FC = () => {
     const options: I_priorityType[] = ['pin', 'driver']
     return (
         <div className="flex-row- p-b-12- p-h-12- h-48- align-v- gap-6- shadow-bottom">
-            <AICheckbox value={isAllSelected()} onChange={() => selectAll()} />
+            <AICheckbox value={isAllSelected()} onChange={() => selectAll()} checkIcon={checkIcon}/>
             <div className="bold- fs-14- flex-1-">انتخاب همه</div>
             <AISelect
                 popover={{

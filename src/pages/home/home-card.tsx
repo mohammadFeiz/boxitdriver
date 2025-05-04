@@ -4,6 +4,7 @@ import { useHomeContext } from "./context";
 import * as svgs from '../../assets/svgs';
 import { AICheckbox } from "aio-input";
 import { Splitter } from "../../components/splitter";
+import checkIcon from "../../components/checkIcon";
 
 export const HomeCard: FC<{ consignment: I_consignment, index: number }> = ({ consignment, index }) => {
     const [mounted, setMounted] = useState<boolean>(false)
@@ -35,7 +36,7 @@ const CardHeader: FC<{ consignment: I_consignment }> = ({ consignment }) => {
     return (
         <>
             <div className="flex-row- fs-12- align-v- gap-6- h-36- p-b-6-">
-                <AICheckbox value={selected} onChange={() => selectConsignment(consignment)} />
+                <AICheckbox value={selected} onChange={() => selectConsignment(consignment)} checkIcon={checkIcon}/>
                 <div className="bold- flex-1-">{`شماره مرسوله : ${consignment.number}`}</div>
                 <Status consignment={consignment} />
             </div>

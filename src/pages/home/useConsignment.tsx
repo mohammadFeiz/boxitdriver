@@ -40,7 +40,6 @@ const useConsignment = (apis:Apis,popup:I_usePopup,setretry:any): I_consignmentH
         else {
             setretry(false)
             setConsignments(res)
-            
         }
     }
     const changeConsignments = (newConsignments:I_consignment[])=>{

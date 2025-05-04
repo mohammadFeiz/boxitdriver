@@ -6,8 +6,6 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import Home from './pages/home';
 import Suggestions from './pages/suggestions';
 import MyShift from './pages/my-shift';
-import { AIOInputDefaults } from 'aio-input';
-import checkIcon from './components/checkIcon';
 import useBottomMenu from './components/useBottomMenu';
 import './App.css';
 import usePopup from 'aio-popup';
@@ -106,9 +104,6 @@ const App: FC<{ logout: any,user:I_user,apis:Apis }> = ({ logout,user,apis }) =>
   // const tokenRef = useRef(storage.load('token'));
   // const token = tokenRef.current
   const [retry, setretry] = useState<{ onClick: () => void, text: string } | false>(false)
-  AIOInputDefaults.set({
-    checkIcon: checkIcon
-  })
   const popup = usePopup()
   // const user: I_user = {
   //   username: 'ali_ansari',
