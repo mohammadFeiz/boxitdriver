@@ -16,6 +16,7 @@ import { hasAuthParams, useAuth } from 'react-oidc-context';
 import { CreateInstance } from 'aio-apis';
 import AmariReport from './pages/amari-report';
 import ListiReport from './pages/listi-report';
+import AppNameLoader from './components/appnameloader';
 // function App() {
 //   const auth = useAuth();
 
@@ -40,6 +41,7 @@ import ListiReport from './pages/listi-report';
 // }
 // export default App
 const AuthRouter: FC = () => {
+  return <AppNameLoader/>
   const auth = useAuth()
   const navigate = useNavigate()
   function logout() {

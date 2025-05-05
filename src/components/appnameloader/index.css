@@ -1,0 +1,328 @@
+
+.msfloading1{
+    direction:ltr;
+}
+.msfloading1 .msfloading1item:nth-child(1) {
+    animation-name: msfloading11;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left 0px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading11 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    9.839506172839506% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(2) {
+    animation-name: msfloading12;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -20px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading12 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    5.839506172839506% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    15.679012345679013% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(3) {
+    animation-name: msfloading13;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -60px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading13 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    11.679012345679013% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    21.51851851851852% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(4) {
+    animation-name: msfloading14;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -88px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading14 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    17.51851851851852% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    27.358024691358025% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(5) {
+    animation-name: msfloading15;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -97px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading15 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    23.358024691358025% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    33.19753086419753% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(6) {
+    animation-name: msfloading16;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -122px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading16 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    29.19753086419753% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    39.03703703703704% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(7) {
+    animation-name: msfloading17;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -137px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading17 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    35.03703703703704% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    44.876543209876544% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(8) {
+    animation-name: msfloading18;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -167px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading18 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    40.876543209876544% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    50.71604938271605% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(9) {
+    animation-name: msfloading19;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -192px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading19 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    46.71604938271605% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    56.55555555555556% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(10) {
+    animation-name: msfloading110;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -203px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading110 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    52.55555555555556% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    62.39506172839506% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(11) {
+    animation-name: msfloading111;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -235px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading111 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    58.39506172839506% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    68.23456790123457% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      
+.msfloading1 .msfloading1item:nth-child(12) {
+    animation-name: msfloading112;
+    animation-duration:2.7s;
+    height:32px;
+    object-fit:cover;
+    object-position:top 0px left -258px;
+    animation-iteration-count:1;
+}
+@keyframes msfloading112 {
+    0% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    64.23456790123457% {
+        transform: scale(3);
+        opacity: 0;
+    }
+    74.07407407407408% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+      

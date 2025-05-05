@@ -57,6 +57,22 @@ body {
   padding: 0;
   margin: 0;
 }
+.app-splash{
+  background: radial-gradient(#a51e73, #26041d);
+}
+.app-logo{
+  animation:logo 2s ease-in-out;
+}
+@keyframes logo{
+  0%{
+    transform:scale(0.2);
+    opacity:0;
+  }
+  100%{
+    transform:scale(1);
+    opacity:1;
+  }
+}
 .border-panel{
   border:1px solid #ccc;
   padding:12px;border-radius:12px;
