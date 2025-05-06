@@ -46,7 +46,9 @@
     url('./iransans/woff/IRANSansWeb(FaNum)_Medium.woff') format('woff'),
     url('./iransans/ttf/IRANSansWeb(FaNum)_Medium.ttf') format('truetype');
 }
-
+#kc-form{
+  background:#a51e73;
+}
 body {
   font-family: IRANSans-Light;
   background: #eee;

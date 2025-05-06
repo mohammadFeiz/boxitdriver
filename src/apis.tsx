@@ -24,7 +24,7 @@ export class Apis extends AIOApis {
     driverId: number = 0;
     mock: boolean = true;
     mockDelay: number = 2000;
-    constructor(p: { token: string, base_url: string, logout:()=>void }) {
+    constructor(p: { token: string, base_url: string, logout:()=>void,driverId:number }) {
         super({
             id: 'boxitdriver',
             base_url:p.base_url,
@@ -42,9 +42,9 @@ export class Apis extends AIOApis {
                 }
             }
         })
+        this.driverId = p.driverId
         this.base_url = p.base_url;
     }
-    setDriverId = (driverId:number)=>this.driverId = driverId;
     consignmentServerToClient = (obj: I_consignmentServer) => {
         const type: I_consignmentType = obj.selectDriverCardType.id === 0 ? 'pickup' : 'delivery'
         const res: I_consignment = {
