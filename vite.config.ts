@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   server: {
-    port: 3001,
+    port: 3009,
     // host: '0.0.0.0',
     // https: {
     //   key: fs.readFileSync(path.resolve(__dirname, 'cert.key')),

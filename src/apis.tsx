@@ -1,5 +1,5 @@
 import AIOApis from "./components/aio-apis";
-import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_dateRange, I_dateShift, I_failedReason, I_list_report_row, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
+import { I_amari_report, I_consignment, I_consignmentLocationTimes, I_consignmentType, I_dateShift, I_failedReason, I_list_report_row, I_listi_report_filter, I_paymentDetail, I_shift, I_user } from "./types";
 import { getShifts_mock, priorityByParsiMap_mock } from "./mockApis";
 import AIODate from "aio-date";
 import { GetRandomNumber } from "aio-utils";
@@ -181,7 +181,7 @@ export class Apis extends AIOApis {
     }
     getWeyPoints = async (consignments: I_consignment[]): Promise<string | null> => {
         const res: string[] = consignments.map((o) => `${o.lng},${o.lat}`)
-        const currentLocation = await getUserLocation()
+        const currentLocation = await getCurrentLocation()
         if (currentLocation === null) {
             this.actions.addAlert({
                 type: 'error',
@@ -665,46 +665,16 @@ export class Apis extends AIOApis {
 
 }
 
-type Coordinates = { lat: number; lng: number };
 
-export async function getUserLocation(): Promise<Coordinates | null> {
+export async function getCurrentLocation(): Promise<{ lat: number; lng: number } | null> {
     try {
-        if (!navigator.permissions || !navigator.geolocation) {
-            console.warn("Geolocation or Permissions API not supported.");
-            return null;
-        }
-
+        if (!navigator.permissions || !navigator.geolocation) {console.warn("Geolocation or Permissions API not supported."); return null;}
         const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
-
-        if (permissionStatus.state === "denied") {
-            alert(`
-                دسترسی به موقعیت مکانی غیرفعال است.
-            
-                لطفاً مراحل زیر را دنبال کنید:
-                1. روی آیکون 🔒 کنار آدرس کلیک کنید.
-                2. گزینه Location را روی "Allow" تنظیم کنید.
-                3. صفحه را رفرش کنید.
-            
-                ❤️ با تشکر
-              `)
-            return null;
-        }
-
+        if (permissionStatus.state === "denied") {alert(`permission is denied`); return null;}
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 0
-            });
+            navigator.geolocation.getCurrentPosition(resolve, reject, {enableHighAccuracy: true,timeout: 10000,maximumAge: 0});
         });
-
-        return {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-        };
+        return {lat: position.coords.latitude,lng: position.coords.longitude};
     } 
-    catch (err) {
-        console.error("Failed to get location:", err);
-        return null;
-    }
+    catch (err) {console.error("Failed to get location:", err); return null;}
 }
